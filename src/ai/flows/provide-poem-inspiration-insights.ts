@@ -51,7 +51,7 @@ const providePoemInspirationInsightsFlow = ai.defineFlow(
     outputSchema: PoemInspirationInsightsOutputSchema,
   },
   async input => {
-    const {output} = await providePoemInspirationInsightsPrompt(input);
+    const {output} = await prompt(input);
     return output!;
   }
 );
