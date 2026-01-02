@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast"
 import { generatePoemTitle } from '@/ai/flows/generate-poem-title';
 import { providePoemInspirationInsights } from '@/ai/flows/provide-poem-inspiration-insights';
-import { Clipboard, Download, Edit, Loader2, Share2, Sparkles, Wand2 } from 'lucide-react';
+import { Clipboard, Download, Edit, Loader2, Save, Share2, Sparkles, Wand2 } from 'lucide-react';
 import type { GeneratePoemFromImageOutput } from '@/ai/flows/generate-poem-from-image';
 import type { PoemInspirationInsightsOutput } from '@/ai/flows/provide-poem-inspiration-insights';
 import AiInsights from './AiInsights';
@@ -101,6 +101,11 @@ export default function PoemDisplay({ poemResult, image }: PoemDisplayProps) {
     lines[lineNumber] = newText;
     setPoem(lines.join('\n'));
   }
+  
+  const handleSave = () => {
+    // Mock save functionality
+    toast({ title: "Saved to your library!", description: "This is a mock action. Backend is not connected." });
+  }
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 h-full animate-in fade-in duration-500">
@@ -153,6 +158,7 @@ export default function PoemDisplay({ poemResult, image }: PoemDisplayProps) {
         </div>
         
         <div className="flex-shrink-0 flex items-center gap-2 pt-4 mt-auto">
+          <Button onClick={handleSave}><Save className="mr-2 h-4 w-4"/> Save to Library</Button>
           <Button variant="outline" onClick={handleCopy}><Clipboard className="mr-2 h-4 w-4"/> Copy</Button>
           <Button variant="outline" onClick={handleShare}><Share2 className="mr-2 h-4 w-4"/> Share</Button>
           <Button variant="outline" onClick={handleDownload}><Download className="mr-2 h-4 w-4"/> Download</Button>
