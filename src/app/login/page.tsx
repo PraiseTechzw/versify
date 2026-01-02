@@ -120,7 +120,7 @@ export default function LoginPage() {
        </div>
        <div className="hidden bg-muted lg:block relative">
          <Image
-           src="https://images.unsplash.com/photo-1533371452382-d45a9da51ad9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxvY2VhbiUyMHN1bnNldHxlbnwwfHx8fDE3NjczMzM1MDh8MA&ixlib=rb-4.1.0&q=80&w=1080"
+           src="https://images.unsplash.com/photo-1507525428034-b723a9ce6899?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxvY2VhbiUyMHN1bnNldHxlbnwwfHx8fDE3NjczMzM1MDh8MA&ixlib=rb-4.1.0&q=80&w=1080"
            alt="A vibrant sunset over a calm ocean"
            fill
            sizes="50vw"

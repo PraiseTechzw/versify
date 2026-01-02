@@ -108,7 +108,7 @@ export default function SignupPage() {
        </div>
        <div className="hidden bg-muted lg:block relative">
          <Image
-           src="https://images.unsplash.com/photo-1592859600972-1b0834d83747?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmb3Jlc3QlMjBwYXRofGVufDB8fHx8MTc2NzMxMzAwMXww&ixlib=rb-4.1.0&q=80&w=1080"
+           src="https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmb3Jlc3QlMjBwYXRofGVufDB8fHx8MTc2NzMxMzAwMXww&ixlib=rb-4.1.0&q=80&w=1080"
            alt="A winding path through a sunlit forest."
            fill
            sizes="50vw"
