@@ -40,8 +40,7 @@ const prompt = ai.definePrompt({
   name: 'poemInspirationInsightsPrompt',
   input: {schema: PoemInspirationInsightsInputSchema},
   output: {schema: PoemInspirationInsightsOutputSchema},
-  prompt: `You are an AI assistant that analyzes an image and a poem to provide insights into the creative process. Given the image and the poem, you should identify the emotions and visual elements that inspired specific lines of the poem. Also provide a mood visualization for the poem.\n\nImage: {{media url=photoDataUri}}\nPoem: {{{poem}}}\n\nAnalyze the poem, line by line, associating each line with the emotions and visual elements from the image that likely inspired it. Finally, provide a mood visualization.
-\nOutput the result in JSON format.`,
+  prompt: `You are an AI assistant that analyzes an image and a poem to provide insights into the creative process. Given the image and the poem, you should identify the emotions and visual elements that inspired specific lines of the poem. Also provide a mood visualization for the poem.\n\nImage: {{media url=photoDataUri}}\nPoem: {{{poem}}}\n\nAnalyze the poem, line by line, associating each line with the emotions and visual elements from the image that likely inspired it. Finally, provide a mood visualization.\nOutput the result in JSON format.`,
 });
 
 const providePoemInspirationInsightsFlow = ai.defineFlow(
