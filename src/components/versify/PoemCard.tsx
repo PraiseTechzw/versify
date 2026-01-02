@@ -22,14 +22,14 @@ export default function PoemCard({ poem }: PoemCardProps) {
     
     return (
         <Card className="overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 h-full flex flex-col group">
-            <Link href={`/library/${poem.id}`} className='block'>
+            <Link href={`/poem/${poem.id}`} className='block'>
                 <div className="relative aspect-video w-full">
                     <Image src={poem.image.imageUrl} alt={poem.image.description} layout="fill" objectFit="cover" />
                 </div>
             </Link>
             <CardContent className="p-4 flex-1 flex flex-col">
                 <div className='flex justify-between items-start'>
-                    <Link href={`/library/${poem.id}`} className='block flex-1'>
+                    <Link href={`/poem/${poem.id}`} className='block flex-1'>
                         <h3 className="font-headline text-lg font-semibold text-primary truncate pr-2">{poem.title}</h3>
                     </Link>
                     <DropdownMenu>

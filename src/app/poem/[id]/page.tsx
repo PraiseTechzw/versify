@@ -76,7 +76,7 @@ export default function PoemDetailPage() {
             <Header />
             <main className="flex-1 p-4 sm:p-6 md:p-8">
                 <div className="container max-w-4xl">
-                    <Button variant="ghost" onClick={() => router.back()} className="mb-4">
+                    <Button variant="ghost" onClick={() => router.push('/library')} className="mb-4">
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Back to Library
                     </Button>

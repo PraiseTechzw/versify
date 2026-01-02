@@ -1,6 +1,6 @@
 "use client"
 
-import { Library, Leaf, User, LogIn } from 'lucide-react';
+import { Library, Leaf, User, LogIn, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -55,7 +55,12 @@ export default function Header() {
                     My Library
                 </DropdownMenuItem>
               </Link>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <Link href="/settings">
+                <DropdownMenuItem>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </DropdownMenuItem>
+              </Link>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={logout}>Log out</DropdownMenuItem>
             </DropdownMenuContent>
