@@ -3,8 +3,8 @@
 // It is recommended to use the re-exports of the official Firebase SDKs
 // from this file to be able to switch between the production and emulator
 // packages, and to use the connect... Emulator functions.
-import { getAuth, connectAuthEmulator } from 'firebase/auth';
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 import { firebaseConfig } from './firebase-config';
 import { initializeApp, getApp, getApps } from 'firebase/app';

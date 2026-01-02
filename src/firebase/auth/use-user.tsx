@@ -12,14 +12,12 @@ import {
 } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 
-import { useAuth } from '../provider';
+import { auth, firestore } from '@/firebase';
 import { setDoc, doc } from 'firebase/firestore';
-import { useFirestore } from '../provider';
 
 export type User = FirebaseUser;
 
 export const useUser = () => {
-  const auth = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -30,19 +28,16 @@ export const useUser = () => {
     });
 
     return () => unsubscribe();
-  }, [auth]);
+  }, []);
 
   return { user, loading };
 };
 
 export const login = async (email: string, pass: string) => {
-  const auth = useAuth();
   await signInWithEmailAndPassword(auth, email, pass);
 };
 
 export const loginWithGoogle = async () => {
-  const auth = useAuth();
-  const firestore = useFirestore();
   const provider = new GoogleAuthProvider();
   const userCredential = await signInWithPopup(auth, provider);
   const user = userCredential.user;
@@ -57,8 +52,6 @@ export const loginWithGoogle = async () => {
 };
 
 export const signup = async (email: string, pass: string, displayName: string) => {
-  const auth = useAuth();
-  const firestore = useFirestore();
   const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
   const user = userCredential.user;
   await updateFirebaseProfile(user, { displayName });
@@ -73,12 +66,10 @@ export const signup = async (email: string, pass: string, displayName: string) =
 };
 
 export const logout = async () => {
-  const auth = useAuth();
   await signOut(auth);
 };
 
 export const updateProfile = async (user: User, profile: { displayName?: string, photoURL?: string }) => {
-    const firestore = useFirestore();
     await updateFirebaseProfile(user, profile);
 
     const userRef = doc(firestore, 'users', user.uid);
