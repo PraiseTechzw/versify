@@ -60,14 +60,15 @@ export const signup = async (email: string, pass: string, displayName: string) =
   const auth = useAuth();
   const firestore = useFirestore();
   const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-  await updateFirebaseProfile(userCredential.user, { displayName });
+  const user = userCredential.user;
+  await updateFirebaseProfile(user, { displayName });
 
   // Create user profile in Firestore
-  const userRef = doc(firestore, 'users', userCredential.user.uid);
+  const userRef = doc(firestore, 'users', user.uid);
   await setDoc(userRef, {
     displayName: displayName,
     email: email,
-    photoURL: userCredential.user.photoURL
+    photoURL: user.photoURL
   });
 };
 
