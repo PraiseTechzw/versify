@@ -1,132 +1,230 @@
+"use client"
 
-'use client';
-
-import { useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Leaf, LogIn } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { login, loginWithGoogle, useAuth, useFirestore } from '@/firebase';
+import { useState } from "react"
+import Link from "next/link"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Leaf, LogIn, Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import { login, loginWithGoogle } from "@/lib/supabase/auth"
+import { createClient } from "@/lib/supabase/client"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const router = useRouter();
-  const { toast } = useToast();
-  const auth = useAuth();
-  const firestore = useFirestore();
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+  const router = useRouter()
+  const { toast } = useToast()
+  const supabase = createClient()
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
+    setIsLoading(true)
     try {
-      await login(auth, email, password);
-      router.push('/');
-      toast({ title: 'Login Successful!' });
-    } catch (error) {
+      await login(supabase, email, password)
+      router.push("/")
+      toast({ title: "Welcome back!", description: "You've successfully signed in." })
+    } catch (error: any) {
       toast({
-        variant: 'destructive',
-        title: 'Login Failed',
-        description: 'Invalid email or password. Please try again.',
-      });
+        variant: "destructive",
+        title: "Sign in failed",
+        description: error.message || "Invalid email or password. Please try again.",
+      })
+    } finally {
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true)
     try {
-      await loginWithGoogle(auth, firestore);
-      router.push('/');
-      toast({ title: 'Login Successful!' });
-    } catch (error) {
-       toast({
-        variant: 'destructive',
-        title: 'Login Failed',
-        description: 'Could not log in with Google. Please try again.',
-      });
+      await loginWithGoogle(supabase)
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Sign in failed",
+        description: error.message || "Could not sign in with Google. Please try again.",
+      })
+      setIsGoogleLoading(false)
     }
-  };
+  }
 
   return (
-    <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
-       <div className="flex items-center justify-center py-12 animate-in fade-in-0 slide-in-from-bottom-12 duration-500">
-         <Card className="mx-auto w-full max-w-sm border-0 shadow-none sm:border sm:shadow-sm">
-           <CardHeader className="text-center">
-             <Link href="/" className="group flex items-center justify-center gap-2 mb-4">
-               <Leaf className="h-8 w-8 text-primary transition-transform group-hover:rotate-12" />
-               <h1 className="text-3xl font-bold text-primary font-headline">Versify</h1>
-             </Link>
-             <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
-             <CardDescription>Sign in to access your poem library.</CardDescription>
-           </CardHeader>
-           <CardContent>
-             <form onSubmit={handleLogin} className="grid gap-4">
-               <div className="grid gap-2">
-                 <Label htmlFor="email">Email</Label>
-                 <Input
-                   id="email"
-                   type="email"
-                   placeholder="m@example.com"
-                   required
-                   value={email}
-                   onChange={(e) => setEmail(e.target.value)}
-                 />
-               </div>
-               <div className="grid gap-2">
-                 <Label htmlFor="password">Password</Label>
-                 <Input
-                   id="password"
-                   type="password"
-                   required
-                   value={password}
-                   onChange={(e) => setPassword(e.target.value)}
-                 />
-               </div>
-               <Button type="submit" className="w-full group">
-                 <LogIn className="mr-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                 Sign In
-               </Button>
-               <div className="relative my-2">
-                 <div className="absolute inset-0 flex items-center">
-                   <span className="w-full border-t" />
-                 </div>
-                 <div className="relative flex justify-center text-xs uppercase">
-                   <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-                 </div>
-               </div>
-               <Button variant="outline" className="w-full group" onClick={handleGoogleLogin}>
-                 <svg role="img" viewBox="0 0 24 24" className="mr-2 h-4 w-4 transition-transform group-hover:scale-110">
-                   <path
-                     fill="currentColor"
-                     d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.05 1.05-2.58 2.22-4.82 2.22-4.14 0-7.5-3.44-7.5-7.6s3.36-7.6 7.5-7.6c2.34 0 3.87.94 4.78 1.84l2.6-2.58C18.14 2.14 15.48 1 12.48 1 7.02 1 3 5.02 3 10.5s4.02 9.5 9.48 9.5c2.82 0 5.26-1.04 7.02-2.72 1.84-1.56 2.68-4.14 2.68-6.62 0-.6-.05-1.16-.14-1.72H12.48z"
-                   ></path>
-                 </svg>
-                 Google
-               </Button>
-             </form>
-           </CardContent>
-           <CardFooter className="justify-center">
-             <p className="text-sm text-muted-foreground">
-               Don't have an account?{' '}
-               <Link href="/signup" className="font-semibold text-primary hover:underline">
-                 Sign Up
-               </Link>
-             </p>
-           </CardFooter>
-         </Card>
-       </div>
-       <div className="hidden bg-muted lg:block relative">
-         <Image
-           src="https://images.unsplash.com/photo-1507525428034-b723a9ce6899?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxvY2VhbiUyMHN1bnNldHxlbnwwfHx8fDE3NjczMzM1MDh8MA&ixlib=rb-4.1.0&q=80&w=1080"
-           alt="A vibrant sunset over a calm ocean"
-           fill
-           sizes="50vw"
-           className="h-full w-full object-cover animate-in fade-in-0 duration-1000"
-         />
-       </div>
-     </div>
-  );
+    <div className="min-h-screen bg-background flex">
+      {/* Left Panel - Auth Form */}
+      <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 xl:px-12 max-w-md mx-auto lg:max-w-none lg:mx-0">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <Link href="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="h-4 w-4" />
+            <span className="text-sm">Back to Versify</span>
+          </Link>
+          <ThemeToggle />
+        </div>
+
+        {/* Logo */}
+        <div className="flex items-center gap-3 mb-8">
+          <div className="bg-primary/10 p-3 rounded-xl">
+            <Leaf className="h-8 w-8 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground font-headline">Versify</h1>
+            <p className="text-sm text-muted-foreground">AI Poetry Generator</p>
+          </div>
+        </div>
+
+        {/* Form */}
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-3xl font-bold text-foreground mb-2">Welcome back</h2>
+            <p className="text-muted-foreground">We're so excited to see you again!</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium text-foreground">
+                Email <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="discord-input"
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-medium text-foreground">
+                Password <span className="text-destructive">*</span>
+              </Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="discord-input pr-10"
+                  disabled={isLoading}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                  disabled={isLoading}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Link 
+                href="/forgot-password" 
+                className="text-sm text-primary hover:underline"
+              >
+                Forgot your password?
+              </Link>
+            </div>
+
+            <Button 
+              type="submit" 
+              className="w-full discord-button h-11" 
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                <>
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Sign In
+                </>
+              )}
+            </Button>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground font-medium">Or continue with</span>
+              </div>
+            </div>
+
+            <Button 
+              type="button"
+              variant="outline" 
+              className="w-full h-11" 
+              onClick={handleGoogleLogin}
+              disabled={isLoading || isGoogleLoading}
+            >
+              {isGoogleLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Connecting...
+                </>
+              ) : (
+                <>
+                  <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+                    <path
+                      fill="currentColor"
+                      d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.05 1.05-2.58 2.22-4.82 2.22-4.14 0-7.5-3.44-7.5-7.6s3.36-7.6 7.5-7.6c2.34 0 3.87.94 4.78 1.84l2.6-2.58C18.14 2.14 15.48 1 12.48 1 7.02 1 3 5.02 3 10.5s4.02 9.5 9.48 9.5c2.82 0 5.26-1.04 7.02-2.72 1.84-1.56 2.68-4.14 2.68-6.62 0-.6-.05-1.16-.14-1.72H12.48z"
+                    />
+                  </svg>
+                  Continue with Google
+                </>
+              )}
+            </Button>
+          </form>
+
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">
+              Need an account?{" "}
+              <Link href="/signup" className="text-primary hover:underline font-medium">
+                Register
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Panel - Hero Image */}
+      <div className="hidden lg:flex lg:flex-1 relative bg-muted">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20" />
+        <Image
+          src="https://images.unsplash.com/photo-1507525428034-b723a9ce6899?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxvY2VhbiUyMHN1bnNldHxlbnwwfHx8fDE3NjczMzM1MDh8MA&ixlib=rb-4.1.0&q=80&w=1080"
+          alt="A vibrant sunset over a calm ocean"
+          fill
+          sizes="50vw"
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-black/20" />
+        <div className="relative z-10 flex flex-col justify-end p-12 text-white">
+          <blockquote className="space-y-4">
+            <p className="text-xl font-medium leading-relaxed">
+              "Poetry is when an emotion has found its thought and the thought has found words."
+            </p>
+            <footer className="text-sm opacity-80">— Robert Frost</footer>
+          </blockquote>
+        </div>
+      </div>
+    </div>
+  )
 }

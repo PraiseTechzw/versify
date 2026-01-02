@@ -1,8 +1,7 @@
+"use client"
 
-'use client';
-
-import { Library, Leaf, User, LogIn, Settings } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Library, Leaf, User, LogIn, Settings, Hash, Users, Bell } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,89 +10,96 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import Link from 'next/link';
-import { useUser, logout, useAuth } from '@/firebase';
-import { useRouter } from 'next/navigation';
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { ThemeToggle } from "../theme-toggle"
+import Link from "next/link"
+import { useSupabaseUser } from "@/hooks/use-supabase-user"
+import { logout } from "@/lib/supabase/auth"
+import { createClient } from "@/lib/supabase/client"
+import { useRouter } from "next/navigation"
 
 /**
- * The main header component for the application.
- * It displays the application logo, navigation links, and user authentication status.
- *
- * @returns {JSX.Element} The rendered Header component.
+ * Discord-style header component for the application.
+ * Features a clean top bar with channel-like navigation and user controls.
  */
 export default function Header() {
-  const { user } = useUser();
-  const auth = useAuth();
-  const router = useRouter();
+  const { user } = useSupabaseUser()
+  const supabase = createClient()
+  const router = useRouter()
 
   const handleLogout = async () => {
-    await logout(auth);
-    router.push('/');
+    await logout(supabase)
+    router.push("/")
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 max-w-screen-2xl items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <Leaf className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl font-bold text-primary font-headline">
-            Versify
-          </h1>
-        </Link>
+    <div className="flex items-center gap-2">
+      {user && (
+        <>
+          <Button variant="ghost" size="sm" asChild className="hidden sm:flex">
+            <Link href="/library" className="flex items-center gap-2">
+              <Library className="h-4 w-4" />
+              <span className="hidden md:inline">Library</span>
+            </Link>
+          </Button>
+          
+          <Button variant="ghost" size="sm" className="hidden sm:flex">
+            <Bell className="h-4 w-4" />
+          </Button>
+          
+          <Button variant="ghost" size="sm" className="hidden md:flex">
+            <Users className="h-4 w-4" />
+          </Button>
+        </>
+      )}
 
-        <div className="flex items-center gap-4">
-          {user && (
-            <Link href="/library">
-              <Button variant="ghost">
-                <Library className="mr-2 h-4 w-4" />
+      <ThemeToggle />
+
+      {user ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="flex items-center gap-2 px-2">
+              <Avatar className="h-6 w-6">
+                <AvatarImage src={user.photoURL || undefined} />
+                <AvatarFallback className="text-xs">
+                  {user.displayName?.[0] || user.email?.[0]?.toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm font-medium hidden sm:inline">
+                {user.displayName || user.email?.split('@')[0]}
+              </span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild className="sm:hidden">
+              <Link href="/library" className="flex items-center gap-2">
+                <Library className="h-4 w-4" />
                 Library
-              </Button>
-            </Link>
-          )}
-
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage src={user.photoURL || undefined} alt={user.displayName || "user"} />
-                    <AvatarFallback>
-                      {user.displayName ? user.displayName.charAt(0) : <User />}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user.displayName || "Profile"}</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {user.email}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <Link href="/settings">
-                  <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </DropdownMenuItem>
-                </Link>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Link href="/login">
-              <Button>
-                <LogIn className="mr-2 h-4 w-4" />
-                Sign In
-              </Button>
-            </Link>
-          )}
-        </div>
-      </div>
-    </header>
-  );
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/settings" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Settings
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+              <LogIn className="mr-2 h-4 w-4" />
+              Sign Out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : (
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/login" className="flex items-center gap-2">
+            <LogIn className="h-4 w-4" />
+            <span className="hidden sm:inline">Sign In</span>
+          </Link>
+        </Button>
+      )}
+    </div>
+  )
 }

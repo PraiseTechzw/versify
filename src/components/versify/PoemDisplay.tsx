@@ -1,240 +1,277 @@
+"use client"
 
-
-"use client";
-
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { useState, useEffect } from "react"
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { generatePoemTitle } from '@/ai/flows/generate-poem-title';
-import { providePoemInspirationInsights } from '@/ai/flows/provide-poem-inspiration-insights';
-import { Clipboard, Download, Edit, Loader2, RefreshCw, Save, Share2, Sparkles, Wand2 } from 'lucide-react';
-import type { GeneratePoemFromImageOutput } from '@/ai/flows/generate-poem-from-image';
-import type { PoemInspirationInsightsOutput } from '@/ai/flows/provide-poem-inspiration-insights';
-import AiInsights from './AiInsights';
-import PoemLine from './PoemLine';
-import { useLibrary } from '@/context/LibraryContext';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
-import type { CreativeControlsState } from './VersifyClient';
-import { Badge } from '../ui/badge';
-import { useUser } from '@/firebase';
+import { generatePoemTitle } from "@/ai/flows/generate-poem-title"
+import { providePoemInspirationInsights } from "@/ai/flows/provide-poem-inspiration-insights"
+import { Clipboard, Download, Edit, Loader2, RefreshCw, Save, Share2, Sparkles, Wand2, MoreHorizontal } from "lucide-react"
+import type { GeneratePoemFromImageOutput } from "@/ai/flows/generate-poem-from-image"
+import type { PoemInspirationInsightsOutput } from "@/ai/flows/provide-poem-inspiration-insights"
+import AiInsights from "./AiInsights"
+import PoemLine from "./PoemLine"
+import { useLibrary } from "@/context/LibraryContext"
+import { PlaceHolderImages } from "@/lib/placeholder-images"
+import type { CreativeControlsState } from "./VersifyClient"
+import { Badge } from "../ui/badge"
+import { useSupabaseUser } from "@/hooks/use-supabase-user"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
-/**
- * @interface PoemDisplayProps
- * Props for the PoemDisplay component.
- * @property {GeneratePoemFromImageOutput} poemResult - The result from the poem generation flow.
- * @property {string} image - The data URL of the image used for generation.
- * @property {() => void} onRegenerate - Callback to trigger a regeneration of the poem.
- * @property {boolean} isRegenerating - Flag indicating if regeneration is in progress.
- * @property {CreativeControlsState} controls - The creative controls state used for generation.
- */
 interface PoemDisplayProps {
-  poemResult: GeneratePoemFromImageOutput;
-  image: string;
-  onRegenerate: () => void;
-  isRegenerating: boolean;
-  controls: CreativeControlsState;
+  poemResult: GeneratePoemFromImageOutput
+  image: string
+  onRegenerate: () => void
+  isRegenerating: boolean
+  controls: CreativeControlsState
 }
 
 /**
- * A component to display the generated poem and provide actions for interacting with it.
- * It allows editing, regenerating, viewing AI insights, and saving the poem.
- *
- * @param {PoemDisplayProps} props - The props for the component.
- * @returns {JSX.Element} The rendered PoemDisplay component.
+ * Discord-style poem display component with message-like layout.
  */
 export default function PoemDisplay({ poemResult, image, onRegenerate, isRegenerating, controls }: PoemDisplayProps) {
-  const [title, setTitle] = useState(poemResult.title);
-  const [poem, setPoem] = useState(poemResult.poem);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isTitleLoading, setIsTitleLoading] = useState(false);
-  const [showInsights, setShowInsights] = useState(false);
-  const [insights, setInsights] = useState<PoemInspirationInsightsOutput | null>(null);
-  const [isInsightsLoading, setIsInsightsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const { toast } = useToast();
-  const { addPoemToLibrary } = useLibrary();
-  const { user } = useUser();
-
+  const [title, setTitle] = useState(poemResult.title)
+  const [poem, setPoem] = useState(poemResult.poem)
+  const [isEditing, setIsEditing] = useState(false)
+  const [isTitleLoading, setIsTitleLoading] = useState(false)
+  const [showInsights, setShowInsights] = useState(false)
+  const [insights, setInsights] = useState<PoemInspirationInsightsOutput | null>(null)
+  const [isInsightsLoading, setIsInsightsLoading] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const { toast } = useToast()
+  const { addPoemToLibrary } = useLibrary()
+  const { user } = useSupabaseUser()
 
   useEffect(() => {
-    setTitle(poemResult.title);
-    setPoem(poemResult.poem);
-    // When a new poem is generated, hide insights
-    setShowInsights(false);
-    setInsights(null);
-  }, [poemResult]);
+    setTitle(poemResult.title)
+    setPoem(poemResult.poem)
+    setShowInsights(false)
+    setInsights(null)
+  }, [poemResult])
 
   const handleGenerateTitle = async () => {
-    setIsTitleLoading(true);
+    setIsTitleLoading(true)
     try {
-      const { title: newTitle } = await generatePoemTitle({ poem });
-      setTitle(newTitle);
-      toast({ title: "New title generated!" });
+      const { title: newTitle } = await generatePoemTitle({ poem })
+      setTitle(newTitle)
+      toast({ title: "New title generated!" })
     } catch (error) {
-      toast({ title: "Error generating title", variant: 'destructive' });
+      toast({ title: "Error generating title", variant: "destructive" })
     } finally {
-      setIsTitleLoading(false);
+      setIsTitleLoading(false)
     }
-  };
+  }
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(`${title}\n\n${poem}`);
-    toast({ title: "Poem copied to clipboard!" });
-  };
-  
+    navigator.clipboard.writeText(`${title}\n\n${poem}`)
+    toast({ title: "Poem copied to clipboard!" })
+  }
+
   const handleShare = async () => {
     const shareData = {
       title: `Poem: ${title}`,
       text: `${title}\n\n${poem}\n\n- Generated by Versify`,
-    };
+    }
     try {
       if (navigator.share) {
-        await navigator.share(shareData);
+        await navigator.share(shareData)
       } else {
-        handleCopy();
+        handleCopy()
       }
     } catch (err) {
-      console.error('Share failed:', err);
-      handleCopy();
+      console.error("Share failed:", err)
+      handleCopy()
     }
-  };
+  }
 
   const handleDownload = () => {
-    const blob = new Blob([`${title}\n\n${poem}`], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${title.toLowerCase().replace(/\s/g, '_')}.txt`;
-    document.body.appendChild(a);
-a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast({ title: "Poem downloaded." });
+    const blob = new Blob([`${title}\n\n${poem}`], { type: "text/plain" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `${title.toLowerCase().replace(/\s/g, "_")}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    toast({ title: "Poem downloaded." })
   }
 
   const handleFetchInsights = async () => {
-    setShowInsights(!showInsights);
+    setShowInsights(!showInsights)
     if (!insights && !showInsights) {
-      setIsInsightsLoading(true);
+      setIsInsightsLoading(true)
       try {
-        const insightsResult = await providePoemInspirationInsights({ photoDataUri: image, poem });
-        setInsights(insightsResult);
+        const insightsResult = await providePoemInspirationInsights({ photoDataUri: image, poem })
+        setInsights(insightsResult)
       } catch (error) {
-        toast({ title: "Could not get AI insights.", variant: 'destructive' });
+        toast({ title: "Could not get AI insights.", variant: "destructive" })
       } finally {
-        setIsInsightsLoading(false);
+        setIsInsightsLoading(false)
       }
     }
-  };
+  }
 
   const updatePoemLine = (lineNumber: number, newText: string) => {
-    const lines = poem.split('\n');
-    lines[lineNumber] = newText;
-    setPoem(lines.join('\n'));
+    const lines = poem.split("\n")
+    lines[lineNumber] = newText
+    setPoem(lines.join("\n"))
   }
-  
+
   const handleSave = async () => {
     if (!user) {
-        toast({ title: "Please log in to save poems.", variant: "destructive" });
-        return;
+      toast({ title: "Please log in to save poems.", variant: "destructive" })
+      return
     }
-    setIsSaving(true);
+    setIsSaving(true)
     try {
-        const imagePlaceholder = PlaceHolderImages.find(p => p.imageUrl === image) || {
-            id: `custom-${Date.now()}`,
-            imageUrl: image,
-            description: 'Custom uploaded image',
-            imageHint: ''
-        };
-        await addPoemToLibrary({ title, poem, image: imagePlaceholder, controls });
-        toast({ title: "Saved to your library!" });
+      const imagePlaceholder = PlaceHolderImages.find((p) => p.imageUrl === image) || {
+        id: `custom-${Date.now()}`,
+        imageUrl: image,
+        description: "Custom uploaded image",
+        imageHint: "",
+      }
+      await addPoemToLibrary({ title, poem, image: imagePlaceholder, controls })
+      toast({ title: "Saved to your library!" })
     } catch (error) {
-        console.error(error);
-        toast({ title: "Failed to save poem", variant: "destructive" });
+      console.error(error)
+      toast({ title: "Failed to save poem", variant: "destructive" })
     } finally {
-        setIsSaving(false);
+      setIsSaving(false)
     }
   }
 
   const detectedItems = [
-    ...(poemResult.visualElements || []).map(item => ({type: 'Visual', value: item})),
-    ...(poemResult.emotions || []).map(item => ({type: 'Emotion', value: item}))
-  ];
+    ...(poemResult.visualElements || []).map((item) => ({ type: "Visual", value: item })),
+    ...(poemResult.emotions || []).map((item) => ({ type: "Emotion", value: item })),
+  ]
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 h-full animate-in fade-in duration-500">
-      <div className="relative lg:w-1/3 aspect-square lg:aspect-auto rounded-xl overflow-hidden shadow-md">
-        <Image src={image} alt="Poem inspiration" fill sizes="(max-width: 1024px) 100vw, 33vw" className="object-cover" />
-      </div>
-
-      <div className="lg:w-2/3 flex flex-col min-w-0">
-        <div className="flex-shrink-0 pr-4">
-          <div className="flex items-start justify-between gap-4">
-              <h2 className="text-3xl font-bold font-headline text-primary flex-1">{title}</h2>
-              <div className='flex'>
-                  <Button variant="ghost" size="icon" onClick={handleGenerateTitle} disabled={isTitleLoading} title="Generate new title">
-                      {isTitleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-                  </Button>
-                   <Button variant="ghost" size="icon" onClick={onRegenerate} disabled={isRegenerating} title="Regenerate poem">
-                      {isRegenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                  </Button>
-              </div>
+    <div className="space-y-4">
+      {/* Message Header */}
+      <div className="flex items-start gap-3">
+        <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+          <Sparkles className="w-4 h-4 text-primary" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="font-semibold text-sm">Versify AI</span>
+            <span className="text-xs text-muted-foreground">just now</span>
           </div>
-          { detectedItems.length > 0 && !showInsights &&
-            <div className="flex flex-wrap gap-2 mt-3">
-              {detectedItems.map((item, index) => (
-                <Badge key={index} variant={item.type === 'Visual' ? 'secondary' : 'outline'}>{item.value}</Badge>
-              ))}
-            </div>
-          }
-          <div className="flex items-center gap-2 mt-4 mb-2">
-            <Button variant="ghost" size="sm" onClick={() => setIsEditing(!isEditing)}><Edit className="h-4 w-4 mr-2"/> {isEditing ? "View" : "Edit"}</Button>
-            <Button variant="ghost" size="sm" onClick={handleFetchInsights}>
-                {isInsightsLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2"/> : <Sparkles className="h-4 w-4 mr-2"/>}
-                {showInsights ? "Hide Insights" : "AI Insights"}
+          <div className="flex items-center gap-1 mb-2">
+            <h3 className="font-semibold text-foreground">{title}</h3>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={handleGenerateTitle}
+              disabled={isTitleLoading}
+            >
+              {isTitleLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3 w-3" />}
             </Button>
           </div>
         </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-6 w-6">
+              <MoreHorizontal className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={onRegenerate} disabled={isRegenerating}>
+              {isRegenerating ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : <RefreshCw className="mr-2 h-3 w-3" />}
+              Regenerate
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setIsEditing(!isEditing)}>
+              <Edit className="mr-2 h-3 w-3" />
+              {isEditing ? "View" : "Edit"}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleFetchInsights}>
+              <Sparkles className="mr-2 h-3 w-3" />
+              {showInsights ? "Hide Insights" : "AI Insights"}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
 
-        <div className="flex-grow min-h-0 overflow-y-auto pr-2">
-          {isEditing ? (
-            <Textarea 
-                value={poem} 
-                onChange={(e) => setPoem(e.target.value)} 
-                className="w-full h-full text-base leading-relaxed bg-transparent border-2 border-dashed font-serif" 
-                rows={poem.split('\n').length + 1}
-            />
-          ) : (
-            showInsights ? (
-              <AiInsights insights={insights} isLoading={isInsightsLoading} />
-            ) : (
-              <div className="whitespace-pre-wrap text-base leading-relaxed font-serif space-y-2">
-                {poem.split('\n').map((line, index) => (
-                  <PoemLine 
-                    key={`${index}-${line}`} 
-                    lineNumber={index} 
-                    lineText={line}
-                    fullPoem={poem}
-                    onRewrite={updatePoemLine}
-                    />
-                ))}
-              </div>
-            )
+      {/* Image */}
+      <div className="relative w-full max-w-lg aspect-video rounded-lg overflow-hidden">
+        <Image
+          src={image || "/placeholder.svg"}
+          alt="Poem inspiration"
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
+          className="object-cover"
+        />
+      </div>
+
+      {/* Detected Elements */}
+      {detectedItems.length > 0 && !showInsights && (
+        <div className="flex flex-wrap gap-1">
+          {detectedItems.slice(0, 6).map((item, index) => (
+            <Badge key={index} variant="secondary" className="text-xs">
+              {item.value}
+            </Badge>
+          ))}
+          {detectedItems.length > 6 && (
+            <Badge variant="outline" className="text-xs">
+              +{detectedItems.length - 6} more
+            </Badge>
           )}
         </div>
-        
-        <div className="flex-shrink-0 flex flex-wrap items-center gap-2 pt-4 mt-auto pr-4">
-          <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4"/>}
-             Save to Library
-          </Button>
-          <Button variant="outline" onClick={handleCopy}><Clipboard className="mr-2 h-4 w-4"/> Copy</Button>
-          <Button variant="outline" onClick={handleShare}><Share2 className="mr-2 h-4 w-4"/> Share</Button>
-          <Button variant="outline" onClick={handleDownload}><Download className="mr-2 h-4 w-4"/> Download</Button>
-        </div>
+      )}
+
+      {/* Poem Content */}
+      <div className="bg-muted/30 rounded-lg p-4">
+        {isEditing ? (
+          <Textarea
+            value={poem}
+            onChange={(e) => setPoem(e.target.value)}
+            className="w-full min-h-[200px] text-sm leading-relaxed bg-transparent border-none resize-none focus:ring-0"
+            placeholder="Edit your poem..."
+          />
+        ) : showInsights ? (
+          <AiInsights insights={insights} isLoading={isInsightsLoading} />
+        ) : (
+          <div className="whitespace-pre-wrap text-sm leading-relaxed space-y-1">
+            {poem.split("\n").map((line, index) => (
+              <PoemLine
+                key={`${index}-${line}`}
+                lineNumber={index}
+                lineText={line}
+                fullPoem={poem}
+                onRewrite={updatePoemLine}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex items-center gap-2 text-xs">
+        <Button variant="ghost" size="sm" onClick={handleSave} disabled={isSaving}>
+          {isSaving ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Save className="mr-1 h-3 w-3" />}
+          Save
+        </Button>
+        <Button variant="ghost" size="sm" onClick={handleCopy}>
+          <Clipboard className="mr-1 h-3 w-3" />
+          Copy
+        </Button>
+        <Button variant="ghost" size="sm" onClick={handleShare}>
+          <Share2 className="mr-1 h-3 w-3" />
+          Share
+        </Button>
+        <Button variant="ghost" size="sm" onClick={handleDownload}>
+          <Download className="mr-1 h-3 w-3" />
+          Download
+        </Button>
       </div>
     </div>
-  );
+  )
 }
