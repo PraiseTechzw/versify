@@ -15,8 +15,8 @@ export default function LibraryPage() {
                     <h1 className="text-3xl font-bold font-headline text-primary mb-6">My Library</h1>
                     {library.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                           {library.map((item, index) => (
-                               <PoemCard key={index} poem={item} />
+                           {library.map((item) => (
+                               <PoemCard key={item.id} poem={item} />
                            ))}
                         </div>
                     ) : (
