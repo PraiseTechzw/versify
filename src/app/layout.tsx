@@ -4,11 +4,24 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/context/AuthContext';
 import { LibraryProvider } from '@/context/LibraryContext';
+import { Inter as FontSans } from "next/font/google"
+import { cn } from '@/lib/utils';
+import { Playfair_Display as FontHeadline } from "next/font/google"
 
 export const metadata: Metadata = {
   title: 'Versify',
   description: 'Generate poems from images with AI',
 };
+
+const fontSans = FontSans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+})
+
+const fontHeadline = FontHeadline({
+  subsets: ["latin"],
+  variable: "--font-headline",
+})
 
 export default function RootLayout({
   children,
@@ -17,12 +30,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@400;700&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className="font-body antialiased">
+      <body
+        className={cn(
+          "min-h-screen bg-background font-sans antialiased",
+          fontSans.variable,
+          fontHeadline.variable
+        )}
+      >
         <LibraryProvider>
           <AuthProvider>
             {children}

@@ -94,7 +94,7 @@ export default function VersifyClient() {
         )}
       </div>
       <div className="md:col-span-7 lg:col-span-8 xl:col-span-9">
-        <Card className="h-full w-full shadow-lg">
+        <Card className="h-full w-full shadow-sm">
           <CardContent className="p-6 h-full">
             {isLoading && !poemResult ? (
               <PoemSkeleton />
@@ -104,15 +104,15 @@ export default function VersifyClient() {
               <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground p-8 animate-in fade-in">
                 {imageDataUrl ? (
                   <>
-                  <div className='relative w-full max-w-xs aspect-square mb-4'>
-                     <Image src={imageDataUrl} alt="Ready for poem" className="rounded-lg object-cover" fill/>
+                  <div className='relative w-full max-w-xs aspect-square mb-4 rounded-lg overflow-hidden'>
+                     <Image src={imageDataUrl} alt="Ready for poem" className="object-cover" fill/>
                   </div>
                   <h2 className="text-xl font-headline font-semibold text-foreground">Image Ready</h2>
                   <p className="mt-2">Adjust your creative controls and generate a poem.</p>
                   </>
                 ) : (
                   <>
-                  <Wand2 className="w-16 h-16 mb-4" />
+                  <Wand2 className="w-16 h-16 mb-4 text-primary/50" />
                   <h2 className="text-2xl font-headline font-semibold text-foreground">Your Poem Awaits</h2>
                   <p className="mt-2 max-w-sm">Upload an image and watch as AI weaves its words into poetry, inspired by your visual muse.</p>
                   </>

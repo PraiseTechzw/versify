@@ -8,6 +8,7 @@ import { Button } from '../ui/button';
 import { BookMarked, FolderPlus, MoreVertical, Star } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { useLibrary } from '@/context/LibraryContext';
+import { Badge } from '../ui/badge';
 
 interface PoemCardProps {
     poem: Poem;
@@ -21,10 +22,10 @@ export default function PoemCard({ poem }: PoemCardProps) {
     }
     
     return (
-        <Card className="overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 h-full flex flex-col group">
+        <Card className="overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 h-full flex flex-col group border-transparent hover:border-primary/50">
             <Link href={`/poem/${poem.id}`} className='block'>
                 <div className="relative aspect-video w-full">
-                    <Image src={poem.image.imageUrl} alt={poem.image.description} layout="fill" objectFit="cover" />
+                    <Image src={poem.image.imageUrl} alt={poem.image.description} layout="fill" objectFit="cover" className="group-hover:scale-105 transition-transform duration-300" />
                 </div>
             </Link>
             <CardContent className="p-4 flex-1 flex flex-col">
@@ -59,9 +60,7 @@ export default function PoemCard({ poem }: PoemCardProps) {
                  <p className="text-sm text-muted-foreground mt-1 line-clamp-3 flex-1">{poem.poem}</p>
                 {poem.collection && (
                      <div className="mt-3">
-                         <span className="text-xs font-semibold inline-flex items-center px-2.5 py-0.5 rounded-full bg-secondary text-secondary-foreground">
-                            {poem.collection}
-                         </span>
+                         <Badge variant="secondary">{poem.collection}</Badge>
                      </div>
                 )}
             </CardContent>
