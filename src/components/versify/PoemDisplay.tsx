@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast"
 import { generatePoemTitle } from '@/ai/flows/generate-poem-title';
 import { providePoemInspirationInsights } from '@/ai/flows/provide-poem-inspiration-insights';
-import { Clipboard, Download, Edit, Loader2, Save, Share2, Sparkles, Wand2 } from 'lucide-react';
+import { Clipboard, Download, Edit, Loader2, RefreshCw, Save, Share2, Sparkles, Wand2 } from 'lucide-react';
 import type { GeneratePoemFromImageOutput } from '@/ai/flows/generate-poem-from-image';
 import type { PoemInspirationInsightsOutput } from '@/ai/flows/provide-poem-inspiration-insights';
 import AiInsights from './AiInsights';
@@ -19,9 +19,11 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 interface PoemDisplayProps {
   poemResult: GeneratePoemFromImageOutput;
   image: string;
+  onRegenerate: () => void;
+  isRegenerating: boolean;
 }
 
-export default function PoemDisplay({ poemResult, image }: PoemDisplayProps) {
+export default function PoemDisplay({ poemResult, image, onRegenerate, isRegenerating }: PoemDisplayProps) {
   const [title, setTitle] = useState(poemResult.title);
   const [poem, setPoem] = useState(poemResult.poem);
   const [isEditing, setIsEditing] = useState(false);
@@ -133,9 +135,14 @@ export default function PoemDisplay({ poemResult, image }: PoemDisplayProps) {
         <div className="flex-shrink-0">
           <div className="flex items-start justify-between gap-4">
               <h2 className="text-3xl font-bold font-headline text-primary flex-1">{title}</h2>
-              <Button variant="ghost" size="icon" onClick={handleGenerateTitle} disabled={isTitleLoading}>
-                  {isTitleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-              </Button>
+              <div className='flex'>
+                  <Button variant="ghost" size="icon" onClick={handleGenerateTitle} disabled={isTitleLoading} title="Generate new title">
+                      {isTitleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                  </Button>
+                   <Button variant="ghost" size="icon" onClick={onRegenerate} disabled={isRegenerating} title="Regenerate poem">
+                      {isRegenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                  </Button>
+              </div>
           </div>
           <div className="flex items-center gap-2 mt-4 mb-2">
             <Button variant="ghost" size="sm" onClick={() => setIsEditing(!isEditing)}><Edit className="h-4 w-4 mr-2"/> {isEditing ? "View" : "Edit"}</Button>

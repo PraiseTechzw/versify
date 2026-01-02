@@ -75,7 +75,7 @@ export default function VersifyClient() {
             {isLoading ? (
               <PoemSkeleton />
             ) : poemResult ? (
-              <PoemDisplay key={poemResult.poem} poemResult={poemResult} image={imageDataUrl!} />
+              <PoemDisplay key={poemResult.poem} poemResult={poemResult} image={imageDataUrl!} onRegenerate={handleGenerate} isRegenerating={isLoading} />
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground p-8 animate-in fade-in">
                 {imageDataUrl ? (
