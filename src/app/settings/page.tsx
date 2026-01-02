@@ -35,12 +35,17 @@ export default function SettingsPage() {
 
     const [displayName, setDisplayName] = useState('');
     const [defaultStyle, setDefaultStyle] = useState('Free Verse');
-    const [dailyNotifications, setDailyNotifications] = useState(false);
-    const [holidayNotifications, setHolidayNotifications] = useState(false);
+    const [dailyInspiration, setDailyInspiration] = useState(false);
+    const [holidayEvents, setHolidayEvents] = useState(false);
 
     useEffect(() => {
         if (user) {
             setDisplayName(user.displayName || '');
+            const prefs = user.notificationPreferences;
+            if (prefs) {
+                setDailyInspiration(prefs.dailyInspiration || false);
+                setHolidayEvents(prefs.holidayEvents || false);
+            }
         }
     }, [user]);
 
@@ -48,7 +53,7 @@ export default function SettingsPage() {
         if (!user) return;
         try {
             await updateProfile(firestore, user, { displayName });
-            // In a real app, you would also save other preferences to Firestore.
+            // In a real app, you would also save other preferences like defaultStyle to Firestore.
             toast({
                 title: "Settings Saved",
                 description: "Your preferences have been updated.",
@@ -59,6 +64,35 @@ export default function SettingsPage() {
                 description: "Could not save settings.",
                 variant: 'destructive'
             });
+        }
+    }
+
+    const handleNotificationChange = async (type: 'daily' | 'holiday', value: boolean) => {
+        if (!user) return;
+        
+        const newPreferences = {
+            dailyInspiration: type === 'daily' ? value : dailyInspiration,
+            holidayEvents: type === 'holiday' ? value : holidayEvents,
+        };
+
+        if(type === 'daily') setDailyInspiration(value);
+        if(type === 'holiday') setHolidayEvents(value);
+
+        try {
+            await updateProfile(firestore, user, { notificationPreferences: newPreferences });
+            toast({
+                title: "Notification settings updated!",
+                description: `You will ${value ? 'now' : 'no longer'} receive ${type === 'daily' ? 'daily inspiration' : 'holiday'} alerts.`
+            });
+        } catch (e) {
+            toast({
+                title: "Error",
+                description: "Could not update notification settings.",
+                variant: 'destructive'
+            });
+            // Revert optimistic update
+            if(type === 'daily') setDailyInspiration(!value);
+            if(type === 'holiday') setHolidayEvents(!value);
         }
     }
     
@@ -154,8 +188,8 @@ export default function SettingsPage() {
                                     </div>
                                     <Switch
                                         id="daily-notifications"
-                                        checked={dailyNotifications}
-                                        onCheckedChange={setDailyNotifications}
+                                        checked={dailyInspiration}
+                                        onCheckedChange={(checked) => handleNotificationChange('daily', checked)}
                                     />
                                 </div>
                                 <div className="flex items-center justify-between p-3 border rounded-md">
@@ -165,14 +199,11 @@ export default function SettingsPage() {
                                     </div>
                                     <Switch
                                         id="holiday-notifications"
-                                        checked={holidayNotifications}
-                                        onCheckedChange={setHolidayNotifications}
+                                        checked={holidayEvents}
+                                        onCheckedChange={(checked) => handleNotificationChange('holiday', checked)}
                                     />
                                 </div>
                             </CardContent>
-                            <CardFooter>
-                               <Button onClick={() => toast({title: "Notification settings saved!"})}>Update Notifications</Button>
-                            </CardFooter>
                         </Card>
                          <Card className="border-destructive">
                             <CardHeader>

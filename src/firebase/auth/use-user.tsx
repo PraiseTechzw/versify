@@ -13,23 +13,38 @@ import {
 } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/firebase';
-import { setDoc, doc, type Firestore } from 'firebase/firestore';
+import { setDoc, doc, type Firestore, getDoc } from 'firebase/firestore';
 
-export type User = FirebaseUser;
+export type User = FirebaseUser & {
+  notificationPreferences?: {
+    dailyInspiration: boolean;
+    holidayEvents: boolean;
+  }
+};
 
 export const useUser = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const auth = useAuth();
+  const firestore = useFirestore();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userDoc = await getDoc(doc(firestore, 'users', user.uid));
+        if (userDoc.exists()) {
+          setUser({ ...user, ...userDoc.data() });
+        } else {
+          setUser(user);
+        }
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [auth]);
+  }, [auth, firestore]);
 
   return { user, loading };
 };
@@ -72,8 +87,10 @@ export const logout = async (auth: Auth) => {
   await signOut(auth);
 };
 
-export const updateProfile = async (firestore: Firestore, user: User, profile: { displayName?: string, photoURL?: string }) => {
-    await updateFirebaseProfile(user, profile);
+export const updateProfile = async (firestore: Firestore, user: User, profile: { displayName?: string, photoURL?: string, notificationPreferences?: any }) => {
+    if ('displayName' in profile || 'photoURL' in profile) {
+      await updateFirebaseProfile(user, {displayName: profile.displayName, photoURL: profile.photoURL });
+    }
 
     const userRef = doc(firestore, 'users', user.uid);
     await setDoc(userRef, profile, { merge: true });

@@ -75,6 +75,20 @@
           "type": "string",
           "format": "uri",
           "description": "URL of the user's profile picture."
+        },
+        "notificationPreferences": {
+            "type": "object",
+            "description": "User's notification preferences.",
+            "properties": {
+                "dailyInspiration": {
+                    "type": "boolean",
+                    "description": "Whether the user wants daily inspiration notifications."
+                },
+                "holidayEvents": {
+                    "type": "boolean",
+                    "description": "Whether the user wants notifications for holiday and special events."
+                }
+            }
         }
       }
     }
