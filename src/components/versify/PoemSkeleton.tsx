@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PoemSkeleton() {
   return (
-    <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 h-full">
+    <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 h-full animate-pulse">
         <div className="lg:w-1/3">
             <Skeleton className="aspect-square lg:aspect-auto h-full w-full rounded-xl" />
         </div>

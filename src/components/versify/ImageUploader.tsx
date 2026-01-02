@@ -149,7 +149,7 @@ export default function ImageUploader({ onImageUpload, currentImage }: ImageUplo
         >
           {currentImage ? (
              <div className="relative aspect-video w-full">
-                <Image src={currentImage} alt="Uploaded preview" layout="fill" objectFit="cover" className="rounded-md" />
+                <Image src={currentImage} alt="Uploaded preview" layout="fill" objectFit="cover" className="rounded-md animate-in fade-in duration-500" />
                 <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" onClick={handleClearImage}>
                     <X className="h-4 w-4" />
                 </Button>
