@@ -13,8 +13,7 @@ import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 
 import { firebaseConfig } from './firebase-config';
-import { FirebaseProvider, useFirebaseApp } from './provider';
-import { AuthProvider } from '@/context/AuthContext';
+import { FirebaseProvider } from './provider';
 import { LibraryProvider } from '@/context/LibraryContext';
 
 /**
@@ -49,11 +48,9 @@ function FirebaseClientProviderInternal({ children }: { children: ReactNode }) {
       auth={services.auth}
       firestore={services.firestore}
     >
-      <AuthProvider>
-        <LibraryProvider>
-          {children}
-        </LibraryProvider>
-      </AuthProvider>
+      <LibraryProvider>
+        {children}
+      </LibraryProvider>
     </FirebaseProvider>
   );
 }

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { useAuth, AuthProvider } from '@/context/AuthContext';
+import { useUser, logout, updateProfile, type User } from '@/firebase';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -21,12 +21,14 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { useRouter } from 'next/navigation';
 
 const poetryStyles = ["Free Verse", "Haiku", "Sonnet", "Limerick", "Ballad"];
 
-function SettingsPageClient() {
-    const { user, logout } = useAuth();
+export default function SettingsPage() {
+    const { user, loading } = useUser();
     const { toast } = useToast();
+    const router = useRouter();
 
     const [displayName, setDisplayName] = useState('');
     const [defaultStyle, setDefaultStyle] = useState('Free Verse');
@@ -39,142 +41,164 @@ function SettingsPageClient() {
         }
     }, [user]);
 
-    const handleSaveChanges = () => {
-        // In a real app, you would save these to the user's profile in the database.
+    const handleSaveChanges = async () => {
+        if (!user) return;
+        try {
+            await updateProfile(user, { displayName });
+            // In a real app, you would also save other preferences to Firestore.
+            toast({
+                title: "Settings Saved",
+                description: "Your preferences have been updated.",
+            });
+        } catch(e) {
+             toast({
+                title: "Error",
+                description: "Could not save settings.",
+                variant: 'destructive'
+            });
+        }
+    }
+    
+    const handleDeleteAccount = async () => {
+        // In a real app this would also delete user data from Firestore
+        await logout();
         toast({
-            title: "Settings Saved",
-            description: "Your preferences have been updated.",
+            title: "Account Deleted",
+            description: "We're sorry to see you go.",
         });
+        router.push('/');
+    }
+
+    if (loading) {
+        return (
+             <div className="flex flex-col min-h-screen bg-background text-foreground">
+                <Header />
+                 <div className="container max-w-2xl text-center py-20">
+                    <h1 className="text-2xl font-bold">Loading...</h1>
+                </div>
+            </div>
+        )
     }
 
     if (!user) {
         return (
-            <div className="container max-w-2xl text-center py-20">
-                <h1 className="text-2xl font-bold">Please sign in</h1>
-                <p className="text-muted-foreground">You need to be logged in to view this page.</p>
+            <div className="flex flex-col min-h-screen bg-background text-foreground">
+                <Header />
+                <main className="flex-1 p-4 sm:p-6 md:p-8">
+                     <div className="container max-w-2xl text-center py-20">
+                        <h1 className="text-2xl font-bold">Please sign in</h1>
+                        <p className="text-muted-foreground">You need to be logged in to view this page.</p>
+                        <Button asChild className="mt-4"><Link href="/login">Sign In</Link></Button>
+                    </div>
+                </main>
             </div>
         )
     }
 
     return (
-        <main className="flex-1 p-4 sm:p-6 md:p-8">
-            <div className="container max-w-2xl">
-                <h1 className="text-3xl font-bold font-headline text-primary mb-6">Settings</h1>
-                <div className="space-y-8">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className='font-headline'>Profile</CardTitle>
-                            <CardDescription>Manage your public profile and preferences.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="displayName">Display Name</Label>
-                                <Input id="displayName" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input id="email" type="email" value={user?.email || ''} disabled />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="default-style">Favorite Style</Label>
-                                <Select value={defaultStyle} onValueChange={setDefaultStyle}>
-                                    <SelectTrigger id="default-style">
-                                        <SelectValue placeholder="Select a style" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {poetryStyles.map(style => <SelectItem key={style} value={style}>{style}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </CardContent>
-                        <CardFooter>
-                            <Button onClick={handleSaveChanges}>Save Changes</Button>
-                        </CardFooter>
-                    </Card>
+        <div className="flex flex-col min-h-screen bg-background text-foreground">
+            <Header />
+            <main className="flex-1 p-4 sm:p-6 md:p-8">
+                <div className="container max-w-2xl">
+                    <h1 className="text-3xl font-bold font-headline text-primary mb-6">Settings</h1>
+                    <div className="space-y-8">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className='font-headline'>Profile</CardTitle>
+                                <CardDescription>Manage your public profile and preferences.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="displayName">Display Name</Label>
+                                    <Input id="displayName" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="email">Email</Label>
+                                    <Input id="email" type="email" value={user?.email || ''} disabled />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="default-style">Favorite Style</Label>
+                                    <Select value={defaultStyle} onValueChange={setDefaultStyle}>
+                                        <SelectTrigger id="default-style">
+                                            <SelectValue placeholder="Select a style" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {poetryStyles.map(style => <SelectItem key={style} value={style}>{style}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </CardContent>
+                            <CardFooter>
+                                <Button onClick={handleSaveChanges}>Save Changes</Button>
+                            </CardFooter>
+                        </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className='font-headline'>Notifications</CardTitle>
-                            <CardDescription>Manage how you receive updates and inspiration.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex items-center justify-between p-3 border rounded-md">
-                                <div>
-                                    <Label htmlFor="daily-notifications">Daily Inspiration</Label>
-                                    <p className="text-sm text-muted-foreground">Get a daily poem delivered to you.</p>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className='font-headline'>Notifications</CardTitle>
+                                <CardDescription>Manage how you receive updates and inspiration.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex items-center justify-between p-3 border rounded-md">
+                                    <div>
+                                        <Label htmlFor="daily-notifications">Daily Inspiration</Label>
+                                        <p className="text-sm text-muted-foreground">Get a daily poem delivered to you.</p>
+                                    </div>
+                                    <Switch
+                                        id="daily-notifications"
+                                        checked={dailyNotifications}
+                                        onCheckedChange={setDailyNotifications}
+                                    />
                                 </div>
-                                <Switch
-                                    id="daily-notifications"
-                                    checked={dailyNotifications}
-                                    onCheckedChange={setDailyNotifications}
-                                />
-                            </div>
-                            <div className="flex items-center justify-between p-3 border rounded-md">
-                                <div>
-                                    <Label htmlFor="holiday-notifications">Holiday & Special Events</Label>
-                                    <p className="text-sm text-muted-foreground">Receive themed poems for holidays.</p>
+                                <div className="flex items-center justify-between p-3 border rounded-md">
+                                    <div>
+                                        <Label htmlFor="holiday-notifications">Holiday & Special Events</Label>
+                                        <p className="text-sm text-muted-foreground">Receive themed poems for holidays.</p>
+                                    </div>
+                                    <Switch
+                                        id="holiday-notifications"
+                                        checked={holidayNotifications}
+                                        onCheckedChange={setHolidayNotifications}
+                                    />
                                 </div>
-                                <Switch
-                                    id="holiday-notifications"
-                                    checked={holidayNotifications}
-                                    onCheckedChange={setHolidayNotifications}
-                                />
-                            </div>
-                        </CardContent>
-                        <CardFooter>
-                           <Button onClick={() => toast({title: "Notification settings saved!"})}>Update Notifications</Button>
-                        </CardFooter>
-                    </Card>
-                     <Card className="border-destructive">
-                        <CardHeader>
-                            <CardTitle className="text-destructive font-headline">Danger Zone</CardTitle>
-                            <CardDescription>Manage your account settings.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button variant="destructive">Delete Account</Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            This action cannot be undone. This will permanently delete your account and remove your data from our servers.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction
-                                            className="bg-destructive hover:bg-destructive/90"
-                                            onClick={() => {
-                                                logout();
-                                                toast({
-                                                    title: "Account Deleted",
-                                                    description: "We're sorry to see you go.",
-                                                });
-                                            }}
-                                        >
-                                            Yes, delete my account
-                                        </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                            <CardFooter>
+                               <Button onClick={() => toast({title: "Notification settings saved!"})}>Update Notifications</Button>
+                            </CardFooter>
+                        </Card>
+                         <Card className="border-destructive">
+                            <CardHeader>
+                                <CardTitle className="text-destructive font-headline">Danger Zone</CardTitle>
+                                <CardDescription>Manage your account settings.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="destructive">Delete Account</Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                This action cannot be undone. This will permanently delete your account and remove your data from our servers.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction
+                                                className="bg-destructive hover:bg-destructive/90"
+                                                onClick={handleDeleteAccount}
+                                            >
+                                                Yes, delete my account
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
-            </div>
-        </main>
+            </main>
+        </div>
     );
-}
-
-
-export default function SettingsPage() {
-    return (
-        <AuthProvider>
-            <div className="flex flex-col min-h-screen bg-background text-foreground">
-                <Header />
-                <SettingsPageClient />
-            </div>
-        </AuthProvider>
-    )
 }

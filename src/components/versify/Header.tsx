@@ -12,10 +12,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
+import { useUser, logout } from '@/firebase';
 
 export default function Header() {
-  const { user, logout } = useAuth();
+  const { user } = useUser();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -42,9 +42,9 @@ export default function Header() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-9 w-9">
-                    <AvatarImage src={user.photoURL || "https://i.pravatar.cc/150?u=a042581f4e29026704d"} alt={user.displayName || "user"} />
+                    <AvatarImage src={user.photoURL || undefined} alt={user.displayName || "user"} />
                     <AvatarFallback>
-                      <User />
+                      {user.displayName ? user.displayName.charAt(0) : <User />}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -66,7 +66,7 @@ export default function Header() {
                   </DropdownMenuItem>
                 </Link>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout}>Log out</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => logout()}>Log out</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (

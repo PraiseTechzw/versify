@@ -13,6 +13,8 @@ import {
 import { useEffect, useState } from 'react';
 
 import { useAuth } from '../provider';
+import { setDoc, doc } from 'firebase/firestore';
+import { useFirestore } from '../provider';
 
 export type User = FirebaseUser;
 
@@ -40,14 +42,33 @@ export const login = async (email: string, pass: string) => {
 
 export const loginWithGoogle = async () => {
   const auth = useAuth();
+  const firestore = useFirestore();
   const provider = new GoogleAuthProvider();
-  await signInWithPopup(auth, provider);
+  const userCredential = await signInWithPopup(auth, provider);
+  const user = userCredential.user;
+
+  // Create user profile in Firestore if it doesn't exist
+  const userRef = doc(firestore, 'users', user.uid);
+  await setDoc(userRef, {
+    displayName: user.displayName,
+    email: user.email,
+    photoURL: user.photoURL
+  }, { merge: true });
 };
 
 export const signup = async (email: string, pass: string, displayName: string) => {
   const auth = useAuth();
+  const firestore = useFirestore();
   const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
   await updateFirebaseProfile(userCredential.user, { displayName });
+
+  // Create user profile in Firestore
+  const userRef = doc(firestore, 'users', userCredential.user.uid);
+  await setDoc(userRef, {
+    displayName: displayName,
+    email: email,
+    photoURL: userCredential.user.photoURL
+  });
 };
 
 export const logout = async () => {
@@ -56,5 +77,9 @@ export const logout = async () => {
 };
 
 export const updateProfile = async (user: User, profile: { displayName?: string, photoURL?: string }) => {
+    const firestore = useFirestore();
     await updateFirebaseProfile(user, profile);
+
+    const userRef = doc(firestore, 'users', user.uid);
+    await setDoc(userRef, profile, { merge: true });
 }

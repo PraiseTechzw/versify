@@ -13,10 +13,10 @@ import type { PoemInspirationInsightsOutput } from '@/ai/flows/provide-poem-insp
 import AiInsights from './AiInsights';
 import PoemLine from './PoemLine';
 import { useLibrary } from '@/context/LibraryContext';
-import { useAuth } from '@/context/AuthContext';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import type { CreativeControlsState } from './VersifyClient';
 import { Badge } from '../ui/badge';
+import { useUser } from '@/firebase';
 
 interface PoemDisplayProps {
   poemResult: GeneratePoemFromImageOutput;
@@ -37,7 +37,7 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
   const { addPoemToLibrary } = useLibrary();
-  const { user } = useAuth();
+  const { user } = useUser();
 
 
   useEffect(() => {
@@ -177,7 +177,7 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
           </div>
         </div>
 
-        <div className="flex-grow min-h-0 overflow-y-auto pr-4">
+        <div className="flex-grow min-h-0 overflow-y-auto pr-2">
           {isEditing ? (
             <Textarea 
                 value={poem} 

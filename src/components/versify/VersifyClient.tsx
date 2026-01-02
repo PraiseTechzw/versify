@@ -12,7 +12,7 @@ import { Card, CardContent } from '../ui/card';
 import { Wand2 } from 'lucide-react';
 import Image from 'next/image';
 import { useLibrary } from '@/context/LibraryContext';
-import { useAuth } from '@/context/AuthContext';
+import { useUser } from '@/firebase';
 
 export type CreativeControlsState = {
   poetryStyle: string;
@@ -39,7 +39,7 @@ export default function VersifyClient() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { poemForEditing, clearPoemForEditing } = useLibrary();
-  const { user } = useAuth();
+  const { user } = useUser();
 
   useEffect(() => {
     if (poemForEditing) {
