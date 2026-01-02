@@ -24,7 +24,7 @@ interface CreativeControlsProps {
 }
 
 const poetryStyles = ["Free Verse", "Haiku", "Sonnet", "Limerick", "Ballad"];
-const tones = ["Neutral", "Joyful", "Melancholy", "Reflective", "Dramatic", "Humorous"];
+const tones = ["Neutral", "Joyful", "Melancholy", "Reflective", "Dramatic", "Humorous", "Romantic", "Festive"];
 const lengths = { "Short": 0, "Medium": 1, "Long": 2 };
 const narratives = ["Descriptive", "Abstract", "Storytelling", "First-person"];
 

@@ -15,7 +15,7 @@
     {
       "id": "ocean-sunset",
       "description": "A vibrant sunset over a calm ocean.",
-      "imageUrl": "https://images.unsplash.com/photo-1533371452382-d45a9da51ad9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxvY2VhbiUyMHN1bnNldHxlbnwwfHx8fDE3NjczMzg1MDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1533371452382-d45a9da51ad9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxvY2VhbiUyMHN1bnNldHxlbnwwfHx8fDE3NjczMzM1MDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "ocean sunset"
     },
     {
@@ -23,6 +23,18 @@
       "description": "A clear night sky full of stars over a mountain range.",
       "imageUrl": "https://images.unsplash.com/photo-1522124624696-7ea32eb9592c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzdGFycnklMjBuaWdodHxlbnwwfHx8fDE3NjczMzUyMzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "starry night"
+    },
+    {
+      "id": "winter-wonderland",
+      "description": "A snowy landscape with pine trees during a holiday season.",
+      "imageUrl": "https://images.unsplash.com/photo-1510740291285-73c15b138d6b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx3aW50ZXIlMjBob2xpZGF5fGVufDB8fHx8MTc2NzM4NTIyNnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "winter holiday"
+    },
+    {
+      "id": "romantic-picnic",
+      "description": "A romantic picnic setting with roses and champagne.",
+      "imageUrl": "https://images.unsplash.com/photo-1589178318475-a38113197282?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxyb21hbnRpYyUyMHBpY25pY3xlbnwwfHx8fDE3NjczODUyNDJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "romantic picnic"
     }
   ]
 }
