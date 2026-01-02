@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Leaf, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { signup, useAuth, useFirestore } from '@/firebase';
+import { FirebaseError } from 'firebase/app';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -29,10 +30,14 @@ export default function SignupPage() {
       toast({ title: 'Signup Successful!', description: 'Welcome to Versify.' });
     } catch (error) {
       console.error(error);
+      let description = 'Could not create an account. Please try again.';
+      if (error instanceof FirebaseError && error.code === 'auth/email-already-in-use') {
+        description = 'An account with this email already exists. Please sign in instead.';
+      }
       toast({
         variant: 'destructive',
         title: 'Signup Failed',
-        description: 'Could not create an account. Please try again.',
+        description,
       });
     }
   };
