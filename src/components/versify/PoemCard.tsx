@@ -22,8 +22,8 @@ export default function PoemCard({ poem }: PoemCardProps) {
     }
     
     return (
-        <Card className="overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 h-full flex flex-col group border-transparent hover:border-primary/50">
-            <Link href={`/poem/${poem.id}`} className='block'>
+        <Card className="overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 h-full flex flex-col group border hover:border-primary/50">
+            <Link href={`/poem/${poem.id}`} className='block overflow-hidden'>
                 <div className="relative aspect-video w-full">
                     <Image src={poem.image.imageUrl} alt={poem.image.description} layout="fill" objectFit="cover" className="group-hover:scale-105 transition-transform duration-300" />
                 </div>

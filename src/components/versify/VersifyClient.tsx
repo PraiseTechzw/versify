@@ -45,6 +45,8 @@ export default function VersifyClient() {
       setPoemResult({
         title: poemForEditing.title,
         poem: poemForEditing.poem,
+        emotions: [],
+        visualElements: [],
       });
       // Here you could also restore creative controls if they were saved with the poem
       // For now, we'll just use the default controls when editing.
@@ -81,8 +83,8 @@ export default function VersifyClient() {
   };
 
   return (
-    <main className="flex-1 grid md:grid-cols-12 gap-6 lg:gap-8 p-4 sm:p-6 md:p-8">
-      <div className="md:col-span-5 lg:col-span-4 xl:col-span-3 flex flex-col gap-6">
+    <main className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 p-4 sm:p-6 md:p-8">
+      <div className="md:col-span-5 lg:col-span-4 xl:col-span-3 flex flex-col gap-6 animate-in fade-in-0 slide-in-from-left-12 duration-500">
         <ImageUploader onImageUpload={setImageDataUrl} currentImage={imageDataUrl}/>
         {imageDataUrl && (
           <CreativeControls 
@@ -94,17 +96,17 @@ export default function VersifyClient() {
         )}
       </div>
       <div className="md:col-span-7 lg:col-span-8 xl:col-span-9">
-        <Card className="h-full w-full shadow-sm">
-          <CardContent className="p-6 h-full">
+        <Card className="h-full w-full shadow-lg border-primary/20">
+          <CardContent className="p-4 sm:p-6 h-full">
             {isLoading && !poemResult ? (
               <PoemSkeleton />
             ) : poemResult ? (
               <PoemDisplay key={poemResult.poem} poemResult={poemResult} image={imageDataUrl!} onRegenerate={handleGenerate} isRegenerating={isLoading} controls={controls} />
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground p-8 animate-in fade-in">
+              <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground p-8 animate-in fade-in-0 zoom-in-95 duration-500">
                 {imageDataUrl ? (
                   <>
-                  <div className='relative w-full max-w-xs aspect-square mb-4 rounded-lg overflow-hidden'>
+                  <div className='relative w-full max-w-xs aspect-square mb-4 rounded-lg overflow-hidden shadow-lg'>
                      <Image src={imageDataUrl} alt="Ready for poem" className="object-cover" fill/>
                   </div>
                   <h2 className="text-xl font-headline font-semibold text-foreground">Image Ready</h2>
@@ -112,7 +114,7 @@ export default function VersifyClient() {
                   </>
                 ) : (
                   <>
-                  <Wand2 className="w-16 h-16 mb-4 text-primary/50" />
+                  <Wand2 className="w-16 h-16 mb-4 text-primary/30" />
                   <h2 className="text-2xl font-headline font-semibold text-foreground">Your Poem Awaits</h2>
                   <p className="mt-2 max-w-sm">Upload an image and watch as AI weaves its words into poetry, inspired by your visual muse.</p>
                   </>
