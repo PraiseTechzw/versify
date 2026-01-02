@@ -1,9 +1,9 @@
 "use client"
 
 import type React from "react"
-import { useState, useCallback, useRef, useEffect } from "react"
+import { useState, useCallback, useRef, useEffect, memo } from "react"
 import Image from "next/image"
-import { Camera, ImageIcon, UploadCloud, X, CameraOff, Check, Plus } from "lucide-react"
+import { Camera, ImageIcon, UploadCloud, X, CameraOff, Check, Plus, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { PlaceHolderImages, type ImagePlaceholder } from "@/lib/placeholder-images"
@@ -18,43 +18,86 @@ import {
 } from "@/components/ui/dialog"
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert"
 import { useToast } from "@/hooks/use-toast"
+import { Progress } from "@/components/ui/progress"
 
 interface ImageUploaderProps {
   onImageUpload: (dataUrl: string) => void
   currentImage: string | null
 }
 
+// Constants for better maintainability
+const IMAGE_CONSTRAINTS = {
+  MAX_SIZE_KB: 800,
+  MAX_WIDTH: 1920,
+  MAX_HEIGHT: 1080,
+  COMPRESSION_QUALITY: {
+    START: 0.9,
+    MIN: 0.1,
+    STEP: 0.1,
+  },
+  CAMERA_QUALITY: 0.8,
+  BASE64_OVERHEAD: 1.37,
+} as const
+
+const ACCEPTED_IMAGE_TYPES = {
+  'image/png': ['.png'],
+  'image/jpeg': ['.jpg', '.jpeg'],
+  'image/webp': ['.webp'],
+} as const
+
+const SUCCESS_DISPLAY_DURATION = 2000
+
 /**
- * Discord-style compact image uploader component.
+ * Enhanced image uploader with drag & drop, camera, and gallery support
  */
-export default function ImageUploader({ onImageUpload, currentImage }: ImageUploaderProps) {
+const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage }: ImageUploaderProps) {
   const [isDragging, setIsDragging] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [uploadSuccess, setUploadSuccess] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [isCameraOpen, setIsCameraOpen] = useState(false)
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false)
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null)
+  
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const streamRef = useRef<MediaStream | null>(null)
+  
   const { toast } = useToast()
-  const [uploadSuccess, setUploadSuccess] = useState(false)
 
+  // Camera management with cleanup
   useEffect(() => {
-    let stream: MediaStream | null = null
-    const getCameraPermission = async () => {
+    const manageCameraStream = async () => {
       if (!isCameraOpen) {
-        if (stream && videoRef.current) {
-          stream.getTracks().forEach((track) => track.stop())
+        // Cleanup when camera dialog closes
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach((track) => track.stop())
+          streamRef.current = null
+        }
+        if (videoRef.current) {
           videoRef.current.srcObject = null
         }
+        setHasCameraPermission(null)
         return
       }
+
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true })
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { 
+            facingMode: 'environment',
+            width: { ideal: IMAGE_CONSTRAINTS.MAX_WIDTH },
+            height: { ideal: IMAGE_CONSTRAINTS.MAX_HEIGHT }
+          } 
+        })
+        streamRef.current = stream
         setHasCameraPermission(true)
+        
         if (videoRef.current) {
           videoRef.current.srcObject = stream
         }
       } catch (error) {
-        console.error("Error accessing camera:", error)
+        console.error("Camera access error:", error)
         setHasCameraPermission(false)
         toast({
           variant: "destructive",
@@ -64,208 +107,282 @@ export default function ImageUploader({ onImageUpload, currentImage }: ImageUplo
       }
     }
 
-    getCameraPermission()
+    manageCameraStream()
+
     return () => {
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop())
+      // Cleanup on unmount
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop())
       }
     }
   }, [isCameraOpen, toast])
 
-  const compressImage = useCallback((file: File, maxSizeKB: number = 800): Promise<string> => {
-    return new Promise<string>((resolve, reject) => {
-      const canvas = document.createElement('canvas')
-      const ctx = canvas.getContext('2d')
-      if (!ctx) {
-        reject('Canvas context not available')
-        return
-      }
-      
-      const img = document.createElement('img')
-      
-      img.onerror = () => reject('Failed to load image')
-      
-      img.onload = () => {
-        // Calculate new dimensions while maintaining aspect ratio
-        const maxWidth = 1920
-        const maxHeight = 1080
-        let { width, height } = img
+  /**
+   * Compress image to target size while maintaining quality
+   */
+  const compressImage = useCallback(
+    (file: File, maxSizeKB: number = IMAGE_CONSTRAINTS.MAX_SIZE_KB): Promise<string> => {
+      return new Promise<string>((resolve, reject) => {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
         
-        if (width > height) {
-          if (width > maxWidth) {
-            height = (height * maxWidth) / width
-            width = maxWidth
-          }
-        } else {
-          if (height > maxHeight) {
-            width = (width * maxHeight) / height
-            height = maxHeight
-          }
+        if (!ctx) {
+          reject(new Error('Canvas context not available'))
+          return
         }
         
-        canvas.width = width
-        canvas.height = height
+        const img = new window.Image()
+        const objectUrl = URL.createObjectURL(file)
         
-        // Draw and compress
-        ctx.drawImage(img, 0, 0, width, height)
-        
-        // Start with high quality and reduce if needed
-        let quality = 0.9
-        let dataUrl = canvas.toDataURL('image/jpeg', quality)
-        
-        // Reduce quality until under size limit
-        while (dataUrl.length > maxSizeKB * 1024 * 1.37 && quality > 0.1) { // 1.37 accounts for base64 overhead
-          quality -= 0.1
-          dataUrl = canvas.toDataURL('image/jpeg', quality)
+        img.onerror = () => {
+          URL.revokeObjectURL(objectUrl)
+          reject(new Error('Failed to load image'))
         }
         
-        resolve(dataUrl)
-      }
-      
-      const objectUrl = URL.createObjectURL(file)
-      img.src = objectUrl
-      
-      // Clean up object URL after image loads or errors
-      const cleanup = () => URL.revokeObjectURL(objectUrl)
-      img.addEventListener('load', cleanup, { once: true })
-      img.addEventListener('error', cleanup, { once: true })
-    })
-  }, [])
+        img.onload = () => {
+          URL.revokeObjectURL(objectUrl)
+          
+          // Calculate dimensions maintaining aspect ratio
+          let { width, height } = img
+          const { MAX_WIDTH, MAX_HEIGHT } = IMAGE_CONSTRAINTS
+          
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height = Math.round((height * MAX_WIDTH) / width)
+              width = MAX_WIDTH
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width = Math.round((width * MAX_HEIGHT) / height)
+              height = MAX_HEIGHT
+            }
+          }
+          
+          canvas.width = width
+          canvas.height = height
+          ctx.drawImage(img, 0, 0, width, height)
+          
+          // Progressive compression
+          const { START, MIN, STEP } = IMAGE_CONSTRAINTS.COMPRESSION_QUALITY
+          let quality = START
+          let dataUrl = canvas.toDataURL('image/jpeg', quality)
+          const targetSize = maxSizeKB * 1024 * IMAGE_CONSTRAINTS.BASE64_OVERHEAD
+          
+          while (dataUrl.length > targetSize && quality > MIN) {
+            quality -= STEP
+            dataUrl = canvas.toDataURL('image/jpeg', quality)
+            setUploadProgress(Math.round((START - quality) / START * 100))
+          }
+          
+          resolve(dataUrl)
+        }
+        
+        img.src = objectUrl
+      })
+    },
+    []
+  )
 
+  /**
+   * Handle file processing with compression and validation
+   */
   const handleFile = useCallback(
     async (file: File) => {
-      if (file && file.type.startsWith("image/")) {
-        try {
-          // Check file size and compress if needed
-          const fileSizeKB = file.size / 1024
-          let dataUrl: string
-          
-          if (fileSizeKB > 800) {
-            // Show compression message for large files
-            toast({
-              title: "Compressing image...",
-              description: "Large image detected. Optimizing for upload.",
-            })
-            dataUrl = await compressImage(file, 800)
-          } else {
-            // For smaller files, just convert to data URL
-            dataUrl = await new Promise<string>((resolve, reject) => {
-              const reader = new FileReader()
-              reader.onload = (e) => resolve(e.target?.result as string)
-              reader.onerror = () => reject('Failed to read file')
-              reader.readAsDataURL(file)
-            })
-          }
-          
-          onImageUpload(dataUrl)
-          setUploadSuccess(true)
-          setTimeout(() => setUploadSuccess(false), 2000)
-        } catch (error) {
-          console.error("Error processing image:", error)
-          toast({
-            variant: "destructive",
-            title: "Image processing failed",
-            description: "Could not process the image. Please try a different file.",
-          })
-        }
-      } else {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
         toast({
           variant: "destructive",
           title: "Invalid file type",
           description: "Please upload a valid image file (PNG, JPG, or WEBP).",
         })
+        return
+      }
+
+      setIsProcessing(true)
+      setUploadProgress(0)
+
+      try {
+        const fileSizeKB = file.size / 1024
+        let dataUrl: string
+        
+        if (fileSizeKB > IMAGE_CONSTRAINTS.MAX_SIZE_KB) {
+          toast({
+            title: "Optimizing image...",
+            description: `Compressing ${Math.round(fileSizeKB)}KB image for optimal performance.`,
+          })
+          dataUrl = await compressImage(file, IMAGE_CONSTRAINTS.MAX_SIZE_KB)
+        } else {
+          dataUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onloadstart = () => setUploadProgress(25)
+            reader.onprogress = (e) => {
+              if (e.lengthComputable) {
+                setUploadProgress(25 + Math.round((e.loaded / e.total) * 50))
+              }
+            }
+            reader.onload = (e) => {
+              setUploadProgress(100)
+              resolve(e.target?.result as string)
+            }
+            reader.onerror = () => reject(new Error('Failed to read file'))
+            reader.readAsDataURL(file)
+          })
+        }
+        
+        onImageUpload(dataUrl)
+        setUploadSuccess(true)
+        
+        toast({
+          title: "Upload successful!",
+          description: "Your image is ready for poem generation.",
+        })
+        
+        setTimeout(() => {
+          setUploadSuccess(false)
+          setUploadProgress(0)
+        }, SUCCESS_DISPLAY_DURATION)
+        
+      } catch (error) {
+        console.error("Image processing error:", error)
+        toast({
+          variant: "destructive",
+          title: "Processing failed",
+          description: error instanceof Error ? error.message : "Could not process the image. Please try again.",
+        })
+      } finally {
+        setIsProcessing(false)
       }
     },
-    [onImageUpload, toast, compressImage],
+    [onImageUpload, toast, compressImage]
   )
 
-  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+  // Drag and drop handlers
+  const handleDragEnter = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
+    e.stopPropagation()
     setIsDragging(true)
-  }
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    setIsDragging(false)
-  }
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-  }
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    setIsDragging(false)
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFile(e.dataTransfer.files[0])
-    }
-  }
+  }, [])
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      handleFile(e.target.files[0])
-    }
-  }
+  const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+  }, [])
 
-  const handleClearImage = () => {
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }, [])
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault()
+      e.stopPropagation()
+      setIsDragging(false)
+      
+      const files = e.dataTransfer.files
+      if (files && files[0]) {
+        handleFile(files[0])
+      }
+    },
+    [handleFile]
+  )
+
+  const handleFileSelect = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files
+      if (files && files[0]) {
+        handleFile(files[0])
+      }
+    },
+    [handleFile]
+  )
+
+  const handleClearImage = useCallback(() => {
     onImageUpload("")
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
     }
     setUploadSuccess(false)
-  }
+    setUploadProgress(0)
+  }, [onImageUpload])
 
-  const handlePlaceholderSelect = (image: ImagePlaceholder) => {
-    onImageUpload(image.imageUrl)
-    setUploadSuccess(true)
-    setTimeout(() => setUploadSuccess(false), 2000)
-  }
+  const handlePlaceholderSelect = useCallback(
+    (image: ImagePlaceholder) => {
+      onImageUpload(image.imageUrl)
+      setUploadSuccess(true)
+      setIsGalleryOpen(false)
+      toast({
+        title: "Image selected!",
+        description: image.description,
+      })
+      setTimeout(() => setUploadSuccess(false), SUCCESS_DISPLAY_DURATION)
+    },
+    [onImageUpload, toast]
+  )
 
-  const handleCapture = () => {
-    if (videoRef.current && canvasRef.current) {
-      const context = canvasRef.current.getContext("2d")
-      if (context) {
-        const video = videoRef.current
-        
-        // Set reasonable dimensions for camera capture
-        const maxWidth = 1920
-        const maxHeight = 1080
-        let width = video.videoWidth
-        let height = video.videoHeight
-        
-        // Scale down if too large
-        if (width > height) {
-          if (width > maxWidth) {
-            height = (height * maxWidth) / width
-            width = maxWidth
-          }
-        } else {
-          if (height > maxHeight) {
-            width = (width * maxHeight) / height
-            height = maxHeight
-          }
-        }
-        
-        canvasRef.current.width = width
-        canvasRef.current.height = height
-        context.drawImage(video, 0, 0, width, height)
-        
-        // Compress the captured image
-        const dataUrl = canvasRef.current.toDataURL("image/jpeg", 0.8)
-        onImageUpload(dataUrl)
-        setIsCameraOpen(false)
-        setUploadSuccess(true)
-        setTimeout(() => setUploadSuccess(false), 2000)
+  const handleCapture = useCallback(() => {
+    if (!videoRef.current || !canvasRef.current) return
+    
+    const context = canvasRef.current.getContext("2d")
+    if (!context) return
+
+    const video = videoRef.current
+    let width = video.videoWidth
+    let height = video.videoHeight
+    
+    // Scale to max dimensions
+    const { MAX_WIDTH, MAX_HEIGHT } = IMAGE_CONSTRAINTS
+    if (width > height) {
+      if (width > MAX_WIDTH) {
+        height = Math.round((height * MAX_WIDTH) / width)
+        width = MAX_WIDTH
+      }
+    } else {
+      if (height > MAX_HEIGHT) {
+        width = Math.round((width * MAX_HEIGHT) / height)
+        height = MAX_HEIGHT
       }
     }
-  }
+    
+    canvasRef.current.width = width
+    canvasRef.current.height = height
+    context.drawImage(video, 0, 0, width, height)
+    
+    const dataUrl = canvasRef.current.toDataURL("image/jpeg", IMAGE_CONSTRAINTS.CAMERA_QUALITY)
+    onImageUpload(dataUrl)
+    setIsCameraOpen(false)
+    setUploadSuccess(true)
+    
+    toast({
+      title: "Photo captured!",
+      description: "Your image is ready for poem generation.",
+    })
+    
+    setTimeout(() => setUploadSuccess(false), SUCCESS_DISPLAY_DURATION)
+  }, [onImageUpload, toast])
+
+  const triggerFileInput = useCallback(() => {
+    if (!currentImage) {
+      fileInputRef.current?.click()
+    }
+  }, [currentImage])
 
   return (
     <div className="space-y-3">
-      {/* Header */}
+      {/* Header with status */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-foreground">Image Upload</h3>
         {uploadSuccess && (
-          <div className="flex items-center gap-1 text-xs text-green-500">
-            <Check className="h-3 w-3" />
-            <span>Uploaded!</span>
+          <div className="flex items-center gap-1.5 text-xs text-green-500 animate-in fade-in-0 slide-in-from-right-2">
+            <Check className="h-3.5 w-3.5" />
+            <span className="font-medium">Success!</span>
+          </div>
+        )}
+        {isProcessing && (
+          <div className="flex items-center gap-1.5 text-xs text-primary">
+            <div className="h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <span className="font-medium">Processing...</span>
           </div>
         )}
       </div>
@@ -273,56 +390,88 @@ export default function ImageUploader({ onImageUpload, currentImage }: ImageUplo
       {/* Upload Area */}
       <div
         className={cn(
-          "relative group border-2 border-dashed rounded-lg p-3 sm:p-4 text-center cursor-pointer",
-          isDragging && "border-primary bg-primary/10",
+          "relative group border-2 border-dashed rounded-lg transition-all duration-200",
+          "hover:border-primary/50 hover:bg-primary/5",
+          isDragging && "border-primary bg-primary/10 scale-[1.02]",
           !isDragging && !currentImage && "border-border",
-          currentImage && "p-0 border-solid border-border",
+          currentImage && "p-0 border-solid border-border hover:border-primary/30",
+          isProcessing && "pointer-events-none opacity-60",
         )}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
-        onClick={() => !currentImage && fileInputRef.current?.click()}
+        onClick={triggerFileInput}
+        role="button"
+        tabIndex={0}
+        aria-label="Upload image area"
       >
         {currentImage ? (
           <div className="relative aspect-video w-full">
             <Image
-              src={currentImage || "/placeholder.svg"}
+              src={currentImage}
               alt="Uploaded preview"
               fill
-              sizes="(max-width: 640px) 100vw, 320px"
+              sizes="(max-width: 640px) 100vw, 400px"
               className="rounded-lg object-cover"
+              priority
             />
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" />
             <Button
               variant="destructive"
               size="icon"
-              className="absolute top-2 right-2 h-6 w-6"
-              onClick={handleClearImage}
+              className="absolute top-2 right-2 h-7 w-7 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={(e) => {
+                e.stopPropagation()
+                handleClearImage()
+              }}
+              aria-label="Remove image"
             >
-              <X className="h-3 w-3" />
+              <X className="h-4 w-4" />
             </Button>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center space-y-2 py-4 sm:py-6">
-            <div className={cn(isDragging && "scale-110")}>
-              <UploadCloud className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
+          <div className="flex flex-col items-center justify-center space-y-3 py-6 sm:py-8 px-4 cursor-pointer">
+            <div className={cn(
+              "transition-transform duration-200",
+              isDragging && "scale-110"
+            )}>
+              <div className="p-3 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                <UploadCloud className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+              </div>
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground">
-                <span className="font-medium text-primary">Click to upload</span> or drag and drop
+            <div className="space-y-1">
+              <p className="text-sm text-center">
+                <span className="font-semibold text-primary">Click to upload</span>
+                <span className="text-muted-foreground"> or drag and drop</span>
               </p>
-              <p className="text-xs text-muted-foreground/70 mt-1 hidden sm:block">PNG, JPG, or WEBP</p>
+              <p className="text-xs text-muted-foreground/70 text-center">
+                PNG, JPG, or WEBP • Max 800KB recommended
+              </p>
             </div>
           </div>
         )}
+        
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/png, image/jpeg, image/webp"
+          accept={Object.keys(ACCEPTED_IMAGE_TYPES).join(',')}
           className="hidden"
           onChange={handleFileSelect}
+          disabled={isProcessing}
+          aria-label="File input"
         />
       </div>
+
+      {/* Progress bar */}
+      {isProcessing && uploadProgress > 0 && (
+        <div className="space-y-1 animate-in fade-in-0 slide-in-from-bottom-2">
+          <Progress value={uploadProgress} className="h-1.5" />
+          <p className="text-xs text-muted-foreground text-center">
+            {uploadProgress}% complete
+          </p>
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-2">
@@ -330,34 +479,51 @@ export default function ImageUploader({ onImageUpload, currentImage }: ImageUplo
           variant="outline"
           size="sm"
           onClick={() => fileInputRef.current?.click()}
-          className="text-xs"
+          disabled={isProcessing}
+          className="text-xs font-medium hover:bg-primary/10 transition-colors"
         >
-          <ImageIcon className="mr-1 h-3 w-3" />
-          Upload
+          <ImageIcon className="mr-1.5 h-3.5 w-3.5" />
+          Browse Files
         </Button>
         
         <Dialog open={isCameraOpen} onOpenChange={setIsCameraOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="text-xs">
-              <Camera className="mr-1 h-3 w-3" />
-              Camera
+            <Button 
+              variant="outline" 
+              size="sm" 
+              disabled={isProcessing}
+              className="text-xs font-medium hover:bg-primary/10 transition-colors"
+            >
+              <Camera className="mr-1.5 h-3.5 w-3.5" />
+              Take Photo
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-xl">
             <DialogHeader>
               <DialogTitle>Camera Capture</DialogTitle>
-              <DialogDescription>Center your subject and click capture.</DialogDescription>
+              <DialogDescription>
+                Position your subject and click capture when ready.
+              </DialogDescription>
             </DialogHeader>
             <div className="relative aspect-video w-full bg-muted rounded-lg overflow-hidden">
-              <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+              <video 
+                ref={videoRef} 
+                className="w-full h-full object-cover" 
+                autoPlay 
+                muted 
+                playsInline
+                aria-label="Camera preview"
+              />
               <canvas ref={canvasRef} className="hidden" />
+              
               {hasCameraPermission === false && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 bg-background/90">
-                  <CameraOff className="w-8 h-8 text-destructive mb-2" />
-                  <Alert variant="destructive">
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-background/95">
+                  <CameraOff className="w-12 h-12 text-destructive mb-4" />
+                  <Alert variant="destructive" className="max-w-sm">
+                    <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Camera Access Required</AlertTitle>
                     <AlertDescription>
-                      Please allow camera access in your browser.
+                      Please allow camera access in your browser settings to use this feature.
                     </AlertDescription>
                   </Alert>
                 </div>
@@ -367,9 +533,13 @@ export default function ImageUploader({ onImageUpload, currentImage }: ImageUplo
               <DialogClose asChild>
                 <Button variant="ghost" size="sm">Cancel</Button>
               </DialogClose>
-              <Button size="sm" onClick={handleCapture} disabled={!hasCameraPermission}>
-                <Camera className="mr-1 h-3 w-3" />
-                Capture
+              <Button 
+                size="sm" 
+                onClick={handleCapture} 
+                disabled={!hasCameraPermission}
+              >
+                <Camera className="mr-2 h-4 w-4" />
+                Capture Photo
               </Button>
             </div>
           </DialogContent>
@@ -377,41 +547,58 @@ export default function ImageUploader({ onImageUpload, currentImage }: ImageUplo
       </div>
 
       {/* Gallery Button */}
-      <Dialog>
+      <Dialog open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" size="sm" className="w-full text-xs">
-            <Plus className="mr-1 h-3 w-3" />
+          <Button 
+            variant="outline" 
+            size="sm" 
+            disabled={isProcessing}
+            className="w-full text-xs font-medium hover:bg-primary/10 transition-colors"
+          >
+            <Plus className="mr-1.5 h-3.5 w-3.5" />
             Choose from Gallery
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[650px]">
           <DialogHeader>
-            <DialogTitle>Choose an Image</DialogTitle>
-            <DialogDescription>Select from our gallery to get started.</DialogDescription>
+            <DialogTitle>Image Gallery</DialogTitle>
+            <DialogDescription>
+              Select from our curated collection of inspirational images.
+            </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-3 gap-3 py-4 max-h-[60vh] overflow-y-auto discord-scrollbar">
+          <div 
+            className="grid grid-cols-3 gap-3 py-4 max-h-[60vh] overflow-y-auto pr-2"
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: 'hsl(var(--border)) transparent'
+            }}
+          >
             {PlaceHolderImages.map((image) => (
-              <DialogClose key={image.id} asChild>
-                <button
-                  className="relative aspect-square cursor-pointer rounded-lg overflow-hidden border border-border focus:outline-none focus:ring-2 focus:ring-primary"
-                  onClick={() => handlePlaceholderSelect(image)}
-                >
-                  <Image
-                    src={image.imageUrl || "/placeholder.svg"}
-                    alt={image.description}
-                    fill
-                    sizes="200px"
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 flex items-end">
-                    <p className="text-white text-xs p-2 leading-tight">{image.description}</p>
-                  </div>
-                </button>
-              </DialogClose>
+              <button
+                key={image.id}
+                className="relative aspect-square cursor-pointer rounded-lg overflow-hidden border-2 border-border hover:border-primary transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 group"
+                onClick={() => handlePlaceholderSelect(image)}
+                aria-label={`Select ${image.description}`}
+              >
+                <Image
+                  src={image.imageUrl}
+                  alt={image.description}
+                  fill
+                  sizes="200px"
+                  className="object-cover group-hover:scale-105 transition-transform duration-200"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end">
+                  <p className="text-white text-xs p-3 leading-snug font-medium">
+                    {image.description}
+                  </p>
+                </div>
+              </button>
             ))}
           </div>
         </DialogContent>
       </Dialog>
     </div>
   )
-}
+})
+
+export default ImageUploader

@@ -55,23 +55,23 @@ export default function VersifyClient() {
   const [trialUsed, setTrialUsed] = useState(false)
   const { toast } = useToast()
   const { poemForEditing, clearPoemForEditing } = useLibrary()
-  const { user } = useSupabaseUser()
+  const { user, loading: userLoading } = useSupabaseUser()
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
     setIsMounted(true)
     // Check if trial has been used for non-logged-in users
-    if (!user) {
+    if (!userLoading && !user) {
       const trialUsedStorage = localStorage.getItem("versify-trial-used")
       if (trialUsedStorage === "true") {
         setTrialUsed(true)
       }
-    } else {
+    } else if (!userLoading && user) {
       // Reset trial for logged-in users
       setTrialUsed(false)
       localStorage.removeItem("versify-trial-used")
     }
-  }, [user])
+  }, [user, userLoading])
 
   useEffect(() => {
     if (!isMounted) return
@@ -127,7 +127,7 @@ export default function VersifyClient() {
     }
 
     // Check trial limit for non-logged-in users
-    if (!user && trialUsed) {
+    if (!userLoading && !user && trialUsed) {
       toast({
         title: "Trial limit reached",
         description: "Sign up to continue generating unlimited poems!",
@@ -150,7 +150,7 @@ export default function VersifyClient() {
       setIsSidebarOpen(false)
 
       // Mark trial as used for non-logged-in users
-      if (!user) {
+      if (!userLoading && !user) {
         setTrialUsed(true)
         localStorage.setItem("versify-trial-used", "true")
       }
@@ -186,12 +186,15 @@ export default function VersifyClient() {
   }
 
   const handleImageUpload = (url: string) => {
+    console.log("handleImageUpload called with:", url)
     setImageDataUrl(url)
     if (!url) {
       setPoemResult(null)
       setCurrentStep(1)
+      console.log("Image cleared, step set to 1")
     } else {
       setCurrentStep(2)
+      console.log("Image uploaded, step set to 2")
     }
   }
 
@@ -215,7 +218,7 @@ export default function VersifyClient() {
         </div>
 
         {/* Trial Status for Non-Logged-In Users */}
-        {!user && (
+        {!userLoading && !user && (
           <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${
             trialUsed 
               ? "bg-destructive/10 border-destructive/20" 
@@ -318,7 +321,7 @@ export default function VersifyClient() {
               scrollbarWidth: 'thin',
               scrollbarColor: 'hsl(var(--border)) transparent'
             }}>
-              {!user && trialUsed ? (
+              {!userLoading && !user && trialUsed ? (
                 <div className="text-center py-8 space-y-4">
                   <div className="bg-gradient-to-br from-primary/20 to-primary/5 p-6 rounded-xl">
                     <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
@@ -360,7 +363,7 @@ export default function VersifyClient() {
     </div>
   )
 
-  if (!isMounted) {
+  if (!isMounted || userLoading) {
     return (
       <div className="flex h-screen bg-background">
         <div className="hidden lg:block w-96 xl:w-[28rem] border-r border-border">
@@ -411,9 +414,9 @@ export default function VersifyClient() {
             <span className="font-semibold text-foreground">poem-generator</span>
             <div className="h-5 w-px bg-border mx-1 hidden sm:block" />
             <span className="text-sm text-muted-foreground hidden sm:block">
-              {!user && trialUsed 
+              {!userLoading && !user && trialUsed 
                 ? "Trial complete - Sign up for more!" 
-                : !user 
+                : !userLoading && !user 
                 ? "Free trial: 1 poem remaining"
                 : "Create beautiful poems from images"
               }
@@ -430,7 +433,7 @@ export default function VersifyClient() {
           scrollbarColor: 'hsl(var(--border)) transparent'
         }}>
           {/* Trial Banner for Non-Logged-In Users */}
-          {!user && trialUsed && (
+          {!userLoading && !user && trialUsed && (
             <div className="bg-gradient-to-r from-primary/10 to-accent/10 border-b border-border">
               <div className="max-w-5xl mx-auto p-4 sm:p-6">
                 <div className="flex items-center justify-between">
@@ -514,7 +517,7 @@ export default function VersifyClient() {
                     <p className="text-base leading-relaxed mb-8 text-muted-foreground">
                       Upload an image to get started. Our AI will create beautiful poetry inspired by your visual content.
                     </p>
-                    {!user && (
+                    {!userLoading && !user && (
                       <div className="mb-6 p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
                         <p className="text-sm text-green-700 dark:text-green-300 font-medium">
                           🎉 Free Trial: Generate 1 poem without signing up!
