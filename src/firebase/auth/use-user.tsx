@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -12,7 +13,7 @@ import {
   type Auth,
 } from 'firebase/auth';
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/firebase';
+import { useAuth, useFirestore } from '@/firebase';
 import { setDoc, doc, type Firestore, getDoc } from 'firebase/firestore';
 
 export type User = FirebaseUser & {
@@ -29,6 +30,7 @@ export const useUser = () => {
   const firestore = useFirestore();
 
   useEffect(() => {
+    if (!auth || !firestore) return;
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const userDoc = await getDoc(doc(firestore, 'users', user.uid));
@@ -88,10 +90,18 @@ export const logout = async (auth: Auth) => {
 };
 
 export const updateProfile = async (firestore: Firestore, user: User, profile: { displayName?: string, photoURL?: string, notificationPreferences?: any }) => {
-    if ('displayName' in profile || 'photoURL' in profile) {
-      await updateFirebaseProfile(user, {displayName: profile.displayName, photoURL: profile.photoURL });
+    const dataToUpdate: any = {};
+    if (profile.displayName) {
+      dataToUpdate.displayName = profile.displayName;
+    }
+    if (profile.photoURL) {
+      dataToUpdate.photoURL = profile.photoURL;
     }
 
+    if (Object.keys(dataToUpdate).length > 0) {
+      await updateFirebaseProfile(user, dataToUpdate);
+    }
+    
     const userRef = doc(firestore, 'users', user.uid);
     await setDoc(userRef, profile, { merge: true });
 }
