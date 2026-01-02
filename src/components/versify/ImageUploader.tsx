@@ -273,9 +273,9 @@ export default function ImageUploader({ onImageUpload, currentImage }: ImageUplo
       {/* Upload Area */}
       <div
         className={cn(
-          "relative group border-2 border-dashed rounded-lg p-3 sm:p-4 text-center transition-all duration-200 cursor-pointer",
+          "relative group border-2 border-dashed rounded-lg p-3 sm:p-4 text-center cursor-pointer",
           isDragging && "border-primary bg-primary/10",
-          !isDragging && !currentImage && "border-border hover:border-primary/50 hover:bg-muted/50",
+          !isDragging && !currentImage && "border-border",
           currentImage && "p-0 border-solid border-border",
         )}
         onDragEnter={handleDragEnter}
@@ -296,7 +296,7 @@ export default function ImageUploader({ onImageUpload, currentImage }: ImageUplo
             <Button
               variant="destructive"
               size="icon"
-              className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute top-2 right-2 h-6 w-6"
               onClick={handleClearImage}
             >
               <X className="h-3 w-3" />
@@ -304,7 +304,7 @@ export default function ImageUploader({ onImageUpload, currentImage }: ImageUplo
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center space-y-2 py-4 sm:py-6">
-            <div className={cn("transition-all duration-200", isDragging && "scale-110")}>
+            <div className={cn(isDragging && "scale-110")}>
               <UploadCloud className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
             </div>
             <div>
@@ -392,8 +392,8 @@ export default function ImageUploader({ onImageUpload, currentImage }: ImageUplo
           <div className="grid grid-cols-3 gap-3 py-4 max-h-[60vh] overflow-y-auto discord-scrollbar">
             {PlaceHolderImages.map((image) => (
               <DialogClose key={image.id} asChild>
-                <div
-                  className="relative aspect-square cursor-pointer group rounded-lg overflow-hidden hover:ring-2 hover:ring-primary transition-all"
+                <button
+                  className="relative aspect-square cursor-pointer rounded-lg overflow-hidden border border-border focus:outline-none focus:ring-2 focus:ring-primary"
                   onClick={() => handlePlaceholderSelect(image)}
                 >
                   <Image
@@ -401,12 +401,12 @@ export default function ImageUploader({ onImageUpload, currentImage }: ImageUplo
                     alt={image.description}
                     fill
                     sizes="200px"
-                    className="object-cover transition-transform group-hover:scale-105"
+                    className="object-cover"
                   />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-end">
+                  <div className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 flex items-end">
                     <p className="text-white text-xs p-2 leading-tight">{image.description}</p>
                   </div>
-                </div>
+                </button>
               </DialogClose>
             ))}
           </div>

@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Disable all animations temporarily to fix flickering */
+*, *::before, *::after {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+}
+
 @layer base {
   :root {
     /* Discord Light Theme */
@@ -73,11 +81,11 @@
 }
 /* Discord-inspired custom styles */
 .discord-card {
-  @apply bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-all duration-200;
+  @apply bg-card border border-border rounded-lg shadow-sm;
 }
 
 .discord-button {
-  @apply bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-md px-4 py-2 transition-colors duration-200;
+  @apply bg-primary text-primary-foreground font-medium rounded-md px-4 py-2;
 }
 
 .discord-input {
@@ -89,11 +97,11 @@
 }
 
 .discord-channel {
-  @apply flex items-center gap-2 px-2 py-1.5 rounded text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors duration-150;
+  @apply flex items-center gap-2 px-2 py-1.5 rounded text-sm text-muted-foreground;
 }
 
 .discord-message {
-  @apply bg-card rounded-lg p-4 border border-border hover:border-border/80 transition-colors duration-200;
+  @apply bg-card rounded-lg p-4 border border-border;
 }
 
 /* Custom scrollbar */
@@ -169,11 +177,15 @@ button:focus-visible,
 /* Better hover states on touch devices */
 @media (hover: hover) {
   .discord-channel:hover {
-    @apply bg-muted/50;
+    @apply bg-muted/50 text-foreground;
   }
   
   .discord-card:hover {
     @apply shadow-lg;
+  }
+  
+  .discord-button:hover {
+    @apply bg-primary/90;
   }
 }
 

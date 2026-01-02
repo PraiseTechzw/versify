@@ -11,7 +11,7 @@
  * - `GeneratePoemFromImageOutput`: The Zod schema for the output of the generation.
  */
 
-import {ai, getAvailableModel, trackModelUsage} from '@/ai/genkit';
+import {ai, executeWithModelFallback} from '@/ai/genkit';
 import {z} from 'genkit';
 
 /**
@@ -85,34 +85,10 @@ const generatePoemFromImageFlow = ai.defineFlow(
     outputSchema: GeneratePoemFromImageOutputSchema,
   },
   async input => {
-    const selectedModel = getAvailableModel();
-    console.log(`Using model: ${selectedModel}`);
-    
-    try {
-      const {output} = await prompt(input, { model: selectedModel });
-      trackModelUsage(selectedModel);
+    return executeWithModelFallback(async (model) => {
+      console.log(`Generating poem with model: ${model}`);
+      const {output} = await prompt(input, { model });
       return output!;
-    } catch (error: any) {
-      // If rate limited, try with a different model
-      if (error.code === 429 || error.status === 'RESOURCE_EXHAUSTED') {
-        console.warn(`Rate limit hit for ${selectedModel}, trying alternative model...`);
-        
-        // Try with a different model
-        const fallbackModel = getAvailableModel();
-        if (fallbackModel !== selectedModel) {
-          try {
-            const {output} = await prompt(input, { model: fallbackModel });
-            trackModelUsage(fallbackModel);
-            return output!;
-          } catch (fallbackError) {
-            console.error('All models exhausted:', fallbackError);
-            throw new Error('All AI models are currently rate limited. Please try again in a few minutes.');
-          }
-        }
-      }
-      
-      // Re-throw the original error if it's not a rate limit issue
-      throw error;
-    }
+    });
   }
 );

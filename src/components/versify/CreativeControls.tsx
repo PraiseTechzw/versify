@@ -1,175 +1,154 @@
 "use client"
 
-import type React from "react"
+import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { Wand2, Loader2 } from "lucide-react"
 import type { CreativeControlsState } from "./VersifyClient"
-import { Wand2, Settings } from "lucide-react"
 
 interface CreativeControlsProps {
   controls: CreativeControlsState
-  setControls: React.Dispatch<React.SetStateAction<CreativeControlsState>>
-  onGenerate: () => void
+  setControls: (controls: CreativeControlsState) => void
+  onGenerate: () => Promise<void>
   isLoading: boolean
 }
 
-const poetryStyles = ["Free Verse", "Haiku", "Sonnet", "Limerick", "Ballad"]
-const tones = ["Neutral", "Joyful", "Melancholy", "Reflective", "Dramatic", "Humorous", "Romantic", "Festive"]
-const lengths = { Short: 0, Medium: 1, Long: 2 }
-const narratives = ["Descriptive", "Abstract", "Storytelling", "First-person"]
-
-/**
- * Discord-style compact creative controls component.
- */
 export default function CreativeControls({ controls, setControls, onGenerate, isLoading }: CreativeControlsProps) {
-  const handleValueChange = (key: keyof CreativeControlsState) => (value: string | number | string[]) => {
-    let processedValue = value
-    if (key === "length") {
-      const lengthMap = ["Short", "Medium", "Long"]
-      processedValue = lengthMap[value as number]
-    }
-    setControls((prev) => ({ ...prev, [key]: processedValue }))
+  const updateControl = (key: keyof CreativeControlsState, value: string) => {
+    setControls({ ...controls, [key]: value })
   }
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center gap-2">
-        <Settings className="h-4 w-4 text-muted-foreground" />
-        <h3 className="text-sm font-semibold text-foreground">Creative Controls</h3>
+      {/* Poetry Style */}
+      <div className="space-y-2">
+        <Label htmlFor="poetry-style" className="text-xs font-medium text-foreground uppercase tracking-wide">
+          Poetry Style
+        </Label>
+        <Select value={controls.poetryStyle} onValueChange={(value) => updateControl("poetryStyle", value)}>
+          <SelectTrigger className="h-8 text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Free Verse">Free Verse</SelectItem>
+            <SelectItem value="Haiku">Haiku</SelectItem>
+            <SelectItem value="Sonnet">Sonnet</SelectItem>
+            <SelectItem value="Limerick">Limerick</SelectItem>
+            <SelectItem value="Acrostic">Acrostic</SelectItem>
+            <SelectItem value="Ballad">Ballad</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Controls */}
-      <div className="space-y-3">
-        <div className="space-y-1">
-          <Label className="text-xs font-medium text-muted-foreground">Poetry Style</Label>
-          <Select value={controls.poetryStyle} onValueChange={handleValueChange("poetryStyle")}>
-            <SelectTrigger className="h-8 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {poetryStyles.map((style) => (
-                <SelectItem key={style} value={style} className="text-xs">
-                  {style}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-1">
-          <Label className="text-xs font-medium text-muted-foreground">Tone</Label>
-          <Select value={controls.tone} onValueChange={handleValueChange("tone")}>
-            <SelectTrigger className="h-8 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {tones.map((tone) => (
-                <SelectItem key={tone} value={tone} className="text-xs">
-                  {tone}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label className="text-xs font-medium text-muted-foreground">Length</Label>
-            <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">
-              {controls.length}
-            </span>
-          </div>
-          <Slider
-            value={[lengths[controls.length as keyof typeof lengths]]}
-            onValueChange={(value) => handleValueChange("length")(value[0])}
-            max={2}
-            step={1}
-            className="cursor-pointer"
-          />
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Short</span>
-            <span>Medium</span>
-            <span>Long</span>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label className="text-xs font-medium text-muted-foreground">Interpretation</Label>
-          <RadioGroup
-            value={controls.literalVsSymbolic}
-            onValueChange={handleValueChange("literalVsSymbolic")}
-            className="flex gap-2"
-          >
-            <div className="flex items-center space-x-1 flex-1">
-              <RadioGroupItem value="Literal" id="literal" className="h-3 w-3" />
-              <Label htmlFor="literal" className="cursor-pointer text-xs">
-                Literal
-              </Label>
-            </div>
-            <div className="flex items-center space-x-1 flex-1">
-              <RadioGroupItem value="Balanced" id="balanced" className="h-3 w-3" />
-              <Label htmlFor="balanced" className="cursor-pointer text-xs">
-                Balanced
-              </Label>
-            </div>
-            <div className="flex items-center space-x-1 flex-1">
-              <RadioGroupItem value="Symbolic" id="symbolic" className="h-3 w-3" />
-              <Label htmlFor="symbolic" className="cursor-pointer text-xs">
-                Symbolic
-              </Label>
-            </div>
-          </RadioGroup>
-        </div>
-
-        <div className="space-y-1">
-          <Label className="text-xs font-medium text-muted-foreground">Narrative</Label>
-          <Select value={controls.narrative} onValueChange={handleValueChange("narrative")}>
-            <SelectTrigger className="h-8 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {narratives.map((narrative) => (
-                <SelectItem key={narrative} value={narrative} className="text-xs">
-                  {narrative}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-1">
-          <Label className="text-xs font-medium text-muted-foreground">Keywords</Label>
-          <Input
-            placeholder="e.g., solitude, light, wind"
-            value={controls.keywordEmphasis}
-            onChange={(e) => handleValueChange("keywordEmphasis")(e.target.value)}
-            className="h-8 text-xs"
-          />
-        </div>
-
-        <Button
-          onClick={onGenerate}
-          disabled={isLoading}
-          className="w-full h-9 text-xs font-medium"
-        >
-          {isLoading ? (
-            <>
-              <Wand2 className="mr-1 h-3 w-3 animate-spin" />
-              Generating...
-            </>
-          ) : (
-            <>
-              <Wand2 className="mr-1 h-3 w-3" />
-              Generate Poem
-            </>
-          )}
-        </Button>
+      {/* Tone */}
+      <div className="space-y-2">
+        <Label htmlFor="tone" className="text-xs font-medium text-foreground uppercase tracking-wide">
+          Tone
+        </Label>
+        <Select value={controls.tone} onValueChange={(value) => updateControl("tone", value)}>
+          <SelectTrigger className="h-8 text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Neutral">Neutral</SelectItem>
+            <SelectItem value="Joyful">Joyful</SelectItem>
+            <SelectItem value="Melancholic">Melancholic</SelectItem>
+            <SelectItem value="Mysterious">Mysterious</SelectItem>
+            <SelectItem value="Romantic">Romantic</SelectItem>
+            <SelectItem value="Nostalgic">Nostalgic</SelectItem>
+            <SelectItem value="Peaceful">Peaceful</SelectItem>
+            <SelectItem value="Dramatic">Dramatic</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
+
+      {/* Length */}
+      <div className="space-y-2">
+        <Label htmlFor="length" className="text-xs font-medium text-foreground uppercase tracking-wide">
+          Length
+        </Label>
+        <Select value={controls.length} onValueChange={(value) => updateControl("length", value)}>
+          <SelectTrigger className="h-8 text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Short">Short (4-8 lines)</SelectItem>
+            <SelectItem value="Medium">Medium (8-16 lines)</SelectItem>
+            <SelectItem value="Long">Long (16+ lines)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Literal vs Symbolic */}
+      <div className="space-y-2">
+        <Label htmlFor="literal-symbolic" className="text-xs font-medium text-foreground uppercase tracking-wide">
+          Interpretation
+        </Label>
+        <Select value={controls.literalVsSymbolic} onValueChange={(value) => updateControl("literalVsSymbolic", value)}>
+          <SelectTrigger className="h-8 text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Literal">Literal (Direct description)</SelectItem>
+            <SelectItem value="Balanced">Balanced</SelectItem>
+            <SelectItem value="Symbolic">Symbolic (Metaphorical)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Narrative Style */}
+      <div className="space-y-2">
+        <Label htmlFor="narrative" className="text-xs font-medium text-foreground uppercase tracking-wide">
+          Narrative Style
+        </Label>
+        <Select value={controls.narrative} onValueChange={(value) => updateControl("narrative", value)}>
+          <SelectTrigger className="h-8 text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Descriptive">Descriptive</SelectItem>
+            <SelectItem value="Storytelling">Storytelling</SelectItem>
+            <SelectItem value="Reflective">Reflective</SelectItem>
+            <SelectItem value="Conversational">Conversational</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Keyword Emphasis */}
+      <div className="space-y-2">
+        <Label htmlFor="keyword-emphasis" className="text-xs font-medium text-foreground uppercase tracking-wide">
+          Keyword Emphasis
+        </Label>
+        <Input
+          id="keyword-emphasis"
+          placeholder="e.g., nature, love, journey..."
+          value={controls.keywordEmphasis}
+          onChange={(e) => updateControl("keywordEmphasis", e.target.value)}
+          className="h-8 text-xs"
+        />
+        <p className="text-xs text-muted-foreground">Optional keywords to emphasize in the poem</p>
+      </div>
+
+      {/* Generate Button */}
+      <Button 
+        onClick={onGenerate} 
+        disabled={isLoading}
+        className="w-full mt-6"
+        size="lg"
+      >
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Generating...
+          </>
+        ) : (
+          <>
+            <Wand2 className="mr-2 h-4 w-4" />
+            Generate Poem
+          </>
+        )}
+      </Button>
     </div>
   )
 }

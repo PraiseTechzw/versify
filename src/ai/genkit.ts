@@ -1,90 +1,49 @@
 import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/google-genai';
 
-export const ai = genkit({
-  plugins: [googleAI()],
-  model: 'googleai/gemini-2.5-flash', // Default model
-});
-
-// Available Gemini models with their configurations
+// Define available models in order of preference
 export const AVAILABLE_MODELS = [
-  {
-    name: 'googleai/gemini-2.5-flash',
-    displayName: 'Gemini 2.5 Flash',
-    maxRequests: 20,
-    resetInterval: 60000, // 1 minute
-  },
-  {
-    name: 'googleai/gemini-2.5-flash-lite',
-    displayName: 'Gemini 2.5 Flash Lite',
-    maxRequests: 20,
-    resetInterval: 60000, // 1 minute
-  },
-  {
-    name: 'googleai/gemini-2.5-flash-tts',
-    displayName: 'Gemini 2.5 Flash TTS',
-    maxRequests: 10,
-    resetInterval: 60000, // 1 minute
-  },
-  {
-    name: 'googleai/gemini-3-flash',
-    displayName: 'Gemini 3 Flash',
-    maxRequests: 20,
-    resetInterval: 60000, // 1 minute
-  },
+  'googleai/gemini-2.5-flash',
+  'googleai/gemini-2.5-flash-lite', 
+  'googleai/gemini-3-flash',
+  'googleai/gemini-1.5-flash',
+  'googleai/gemini-1.5-pro'
 ] as const;
 
-// Model usage tracking
-const modelUsage = new Map<string, { count: number; lastReset: number }>();
+export const ai = genkit({
+  plugins: [googleAI()],
+  model: AVAILABLE_MODELS[0], // Default to first model
+});
 
-/**
- * Get the next available model based on usage limits
- */
-export function getAvailableModel(): string {
-  const now = Date.now();
-  
-  for (const model of AVAILABLE_MODELS) {
-    const usage = modelUsage.get(model.name) || { count: 0, lastReset: now };
-    
-    // Reset counter if interval has passed
-    if (now - usage.lastReset >= model.resetInterval) {
-      usage.count = 0;
-      usage.lastReset = now;
-      modelUsage.set(model.name, usage);
-    }
-    
-    // Check if model is available
-    if (usage.count < model.maxRequests) {
-      return model.name;
+// Model fallback utility
+export async function executeWithModelFallback<T>(
+  operation: (model: string) => Promise<T>,
+  startIndex: number = 0
+): Promise<T> {
+  for (let i = startIndex; i < AVAILABLE_MODELS.length; i++) {
+    const model = AVAILABLE_MODELS[i];
+    try {
+      console.log(`Attempting with model: ${model}`);
+      return await operation(model);
+    } catch (error: any) {
+      console.warn(`Model ${model} failed:`, error?.message || error);
+      
+      // Check if it's a quota/rate limit error
+      const isQuotaError = error?.code === 429 || 
+                          error?.status === 'RESOURCE_EXHAUSTED' ||
+                          error?.message?.includes('quota') ||
+                          error?.message?.includes('rate limit') ||
+                          error?.message?.includes('Too Many Requests');
+      
+      // If it's the last model or not a quota error, throw the error
+      if (i === AVAILABLE_MODELS.length - 1 || !isQuotaError) {
+        throw error;
+      }
+      
+      // Continue to next model for quota errors
+      console.log(`Quota exhausted for ${model}, trying next model...`);
     }
   }
   
-  // If all models are exhausted, return the first one (will handle rate limit gracefully)
-  return AVAILABLE_MODELS[0].name;
-}
-
-/**
- * Track model usage
- */
-export function trackModelUsage(modelName: string) {
-  const now = Date.now();
-  const usage = modelUsage.get(modelName) || { count: 0, lastReset: now };
-  usage.count++;
-  modelUsage.set(modelName, usage);
-}
-
-/**
- * Get model usage statistics
- */
-export function getModelUsageStats() {
-  const stats = [];
-  for (const model of AVAILABLE_MODELS) {
-    const usage = modelUsage.get(model.name) || { count: 0, lastReset: Date.now() };
-    stats.push({
-      ...model,
-      currentUsage: usage.count,
-      available: usage.count < model.maxRequests,
-    });
-  }
-  return stats;
+  throw new Error('All models exhausted');
 }

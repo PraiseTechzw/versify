@@ -10,7 +10,7 @@
  * - `GeneratePoemTitleOutput`: The Zod schema for the output.
  */
 
-import {ai, getAvailableModel, trackModelUsage} from '@/ai/genkit';
+import {ai, executeWithModelFallback} from '@/ai/genkit';
 import {z} from 'genkit';
 
 /**
@@ -55,26 +55,10 @@ const generatePoemTitleFlow = ai.defineFlow(
     outputSchema: GeneratePoemTitleOutputSchema,
   },
   async input => {
-    const selectedModel = getAvailableModel();
-    
-    try {
-      const {output} = await prompt(input, { model: selectedModel });
-      trackModelUsage(selectedModel);
+    return executeWithModelFallback(async (model) => {
+      console.log(`Generating title with model: ${model}`);
+      const {output} = await prompt(input, { model });
       return output!;
-    } catch (error: any) {
-      if (error.code === 429 || error.status === 'RESOURCE_EXHAUSTED') {
-        const fallbackModel = getAvailableModel();
-        if (fallbackModel !== selectedModel) {
-          try {
-            const {output} = await prompt(input, { model: fallbackModel });
-            trackModelUsage(fallbackModel);
-            return output!;
-          } catch (fallbackError) {
-            throw new Error('All AI models are currently rate limited. Please try again in a few minutes.');
-          }
-        }
-      }
-      throw error;
-    }
+    });
   }
 );

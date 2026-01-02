@@ -6,7 +6,6 @@ import { Mona_Sans as FontSans } from "next/font/google"
 import { cn } from "@/lib/utils"
 import { Contrail_One as FontHeadline } from "next/font/google"
 import { LibraryProvider } from "@/context/LibraryContext"
-import { ModelUsageStats } from "@/components/debug/ModelUsageStats"
 
 export const metadata: Metadata = {
   title: "Versify - AI Poetry Generator",
@@ -90,7 +89,6 @@ export default function RootLayout({
       >
         <LibraryProvider>{children}</LibraryProvider>
         <Toaster />
-        {process.env.NODE_ENV === 'development' && <ModelUsageStats />}
       </body>
     </html>
   )

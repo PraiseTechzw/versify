@@ -154,11 +154,30 @@ export default function VersifyClient() {
         setTrialUsed(true)
         localStorage.setItem("versify-trial-used", "true")
       }
-    } catch (error) {
-      console.error(error)
+    } catch (error: any) {
+      console.error("Poem generation error:", error)
+      
+      let title = "Failed to generate poem"
+      let description = "An unexpected error occurred. Please try again."
+      
+      // Handle specific error types
+      if (error?.code === 429 || error?.status === 'RESOURCE_EXHAUSTED') {
+        title = "Service temporarily busy"
+        description = "Our AI service is experiencing high demand. Please try again in a few moments."
+      } else if (error?.message?.includes('quota') || error?.message?.includes('rate limit')) {
+        title = "Rate limit reached"
+        description = "Please wait a moment before generating another poem."
+      } else if (error?.message?.includes('network') || error?.message?.includes('fetch')) {
+        title = "Connection error"
+        description = "Please check your internet connection and try again."
+      } else if (error?.message?.includes('All models exhausted')) {
+        title = "Service unavailable"
+        description = "All AI models are currently busy. Please try again later."
+      }
+      
       toast({
-        title: "Failed to generate poem.",
-        description: "An unexpected error occurred. Please try again.",
+        title,
+        description,
         variant: "destructive",
       })
     } finally {
