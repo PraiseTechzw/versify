@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { Camera, Image as ImageIcon, UploadCloud, X } from 'lucide-react';
+import { Camera, Image as ImageIcon, UploadCloud, X, Video, CameraOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,8 +13,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog"
-
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { useToast } from '@/hooks/use-toast';
 
 interface ImageUploaderProps {
   onImageUpload: (dataUrl: string) => void;
@@ -24,7 +26,49 @@ interface ImageUploaderProps {
 export default function ImageUploader({ onImageUpload, currentImage }: ImageUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { toast } = useToast();
 
+  useEffect(() => {
+    let stream: MediaStream | null = null;
+    const getCameraPermission = async () => {
+      if (!isCameraOpen) {
+        if (stream && videoRef.current) {
+          stream.getTracks().forEach(track => track.stop());
+          videoRef.current.srcObject = null;
+        }
+        return;
+      }
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({video: true});
+        setHasCameraPermission(true);
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+        toast({
+          variant: 'destructive',
+          title: 'Camera Access Denied',
+          description: 'Please enable camera permissions in your browser settings.',
+        });
+      }
+    };
+
+    getCameraPermission();
+
+    return () => {
+       if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    }
+  }, [isCameraOpen, toast]);
+  
   const handleFile = useCallback((file: File) => {
     if (file && file.type.startsWith('image/')) {
       const reader = new FileReader();
@@ -71,6 +115,22 @@ export default function ImageUploader({ onImageUpload, currentImage }: ImageUplo
     onImageUpload(image.imageUrl)
   }
 
+  const handleCapture = () => {
+    if (videoRef.current && canvasRef.current) {
+        const context = canvasRef.current.getContext('2d');
+        if (context) {
+            const video = videoRef.current;
+            canvasRef.current.width = video.videoWidth;
+            canvasRef.current.height = video.videoHeight;
+            context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+            const dataUrl = canvasRef.current.toDataURL('image/jpeg');
+            onImageUpload(dataUrl);
+            setIsCameraOpen(false);
+        }
+    }
+  }
+
+
   return (
     <Card className="shadow-lg">
       <CardContent className="p-4 space-y-4">
@@ -113,14 +173,53 @@ export default function ImageUploader({ onImageUpload, currentImage }: ImageUplo
         </div>
         <div className="grid grid-cols-2 gap-2">
             <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
-              <Camera className="mr-2 h-4 w-4" />
+              <ImageIcon className="mr-2 h-4 w-4" />
               Upload
             </Button>
-            <Dialog>
+            <Dialog open={isCameraOpen} onOpenChange={setIsCameraOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline">
+                  <Camera className="mr-2 h-4 w-4" />
+                  Use Camera
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-xl">
+                  <DialogHeader>
+                      <DialogTitle className="font-headline">Camera Capture</DialogTitle>
+                  </DialogHeader>
+                  <div className='relative aspect-video w-full bg-muted rounded-md overflow-hidden mt-4'>
+                      <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                      <canvas ref={canvasRef} className="hidden" />
+                      {hasCameraPermission === false && (
+                          <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
+                              <CameraOff className="w-12 h-12 text-destructive mb-4" />
+                              <Alert variant="destructive">
+                                  <AlertTitle>Camera Access Required</AlertTitle>
+                                  <AlertDescription>
+                                      Please allow camera access in your browser to use this feature.
+                                  </AlertDescription>
+                              </Alert>
+                          </div>
+                      )}
+                  </div>
+                  <div className="flex justify-end gap-2 mt-4">
+                    <DialogClose asChild>
+                      <Button variant="ghost">Cancel</Button>
+                    </DialogClose>
+                    <Button onClick={handleCapture} disabled={!hasCameraPermission}>
+                      <Camera className="mr-2 h-4 w-4" />
+                      Capture Photo
+                    </Button>
+                  </div>
+              </DialogContent>
+            </Dialog>
+        </div>
+        <div className="grid grid-cols-1 gap-2">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className='w-full'>
                   <ImageIcon className="mr-2 h-4 w-4" />
-                  Choose One
+                  Choose from Gallery
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[625px]">
