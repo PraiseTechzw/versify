@@ -236,14 +236,14 @@ export default function ImageUploader({ onImageUpload, currentImage }: ImageUplo
                 </DialogHeader>
                 <div className="grid grid-cols-2 gap-4 py-4">
                   {PlaceHolderImages.map((image) => (
-                    <DialogTrigger key={image.id} asChild>
+                    <DialogClose key={image.id} asChild>
                       <div className="relative aspect-video cursor-pointer group" onClick={() => handlePlaceholderSelect(image)}>
                         <Image src={image.imageUrl} alt={image.description} data-ai-hint={image.imageHint} fill sizes="(max-width: 625px) 50vw, 300px" className="rounded-md object-cover" />
                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                             <p className="text-white text-center text-sm p-2">{image.description}</p>
                         </div>
                       </div>
-                    </DialogTrigger>
+                    </DialogClose>
                   ))}
                 </div>
               </DialogContent>

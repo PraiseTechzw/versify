@@ -41,29 +41,64 @@ export default function VersifyClient() {
   const { toast } = useToast();
   const { poemForEditing, clearPoemForEditing } = useLibrary();
   const { user } = useUser();
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+    try {
+      const savedSession = localStorage.getItem('versify-session');
+      if (savedSession) {
+        const { imageDataUrl, poemResult, controls } = JSON.parse(savedSession);
+        if (imageDataUrl) setImageDataUrl(imageDataUrl);
+        if (poemResult) setPoemResult(poemResult);
+        if (controls) setControls(controls);
+      }
+    } catch (error) {
+      console.error("Failed to load session from localStorage", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
     if (poemForEditing) {
       if (!user || user.uid !== poemForEditing.userId) {
         toast({ title: "Cannot edit poem", description: "You can only edit your own poems.", variant: "destructive" });
         clearPoemForEditing();
         return;
       }
-      setImageDataUrl(poemForEditing.image.imageUrl);
-      setPoemResult({
-        title: poemForEditing.title,
-        poem: poemForEditing.poem,
-        emotions: [],
-        visualElements: [],
-      });
-      setControls(poemForEditing.controls || defaultControls);
+      const sessionData = {
+        imageDataUrl: poemForEditing.image.imageUrl,
+        poemResult: {
+          title: poemForEditing.title,
+          poem: poemForEditing.poem,
+          emotions: [],
+          visualElements: [],
+        },
+        controls: poemForEditing.controls || defaultControls
+      };
+      
+      setImageDataUrl(sessionData.imageDataUrl);
+      setPoemResult(sessionData.poemResult);
+      setControls(sessionData.controls);
+      localStorage.setItem('versify-session', JSON.stringify(sessionData));
+
       clearPoemForEditing();
       toast({
         title: "Editing Poem",
         description: `Loaded "${poemForEditing.title}" into the editor.`
       })
     }
-  }, [poemForEditing, clearPoemForEditing, toast, user]);
+  }, [poemForEditing, clearPoemForEditing, toast, user, isMounted]);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    try {
+        const session = { imageDataUrl, poemResult, controls };
+        localStorage.setItem('versify-session', JSON.stringify(session));
+    } catch (error) {
+        console.error("Failed to save session to localStorage", error);
+    }
+  }, [imageDataUrl, poemResult, controls, isMounted]);
 
 
   const handleGenerate = async () => {
@@ -86,10 +121,34 @@ export default function VersifyClient() {
     }
   };
 
+  const handleImageUpload = (url: string) => {
+    setImageDataUrl(url);
+    if (!url) {
+      setPoemResult(null);
+    }
+  };
+
+  if (!isMounted) {
+    return (
+        <main className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 p-4 sm:p-6 md:p-8">
+            <div className="md:col-span-5 lg:col-span-4 xl:col-span-3">
+                 <PoemSkeleton />
+            </div>
+             <div className="md:col-span-7 lg:col-span-8 xl:col-span-9">
+                <Card className="h-full w-full shadow-lg border-primary/20">
+                    <CardContent className="p-4 sm:p-6 h-full">
+                        <PoemSkeleton />
+                    </CardContent>
+                </Card>
+            </div>
+        </main>
+    )
+  }
+
   return (
     <main className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 p-4 sm:p-6 md:p-8">
       <div className="md:col-span-5 lg:col-span-4 xl:col-span-3 flex flex-col gap-6 animate-in fade-in-0 slide-in-from-left-12 duration-500">
-        <ImageUploader onImageUpload={setImageDataUrl} currentImage={imageDataUrl}/>
+        <ImageUploader onImageUpload={handleImageUpload} currentImage={imageDataUrl}/>
         {imageDataUrl && (
           <CreativeControls 
             controls={controls} 
@@ -104,8 +163,8 @@ export default function VersifyClient() {
           <CardContent className="p-4 sm:p-6 h-full">
             {isLoading && !poemResult ? (
               <PoemSkeleton />
-            ) : poemResult ? (
-              <PoemDisplay key={poemResult.poem} poemResult={poemResult} image={imageDataUrl!} onRegenerate={handleGenerate} isRegenerating={isLoading} controls={controls} />
+            ) : poemResult && imageDataUrl ? (
+              <PoemDisplay key={poemResult.poem} poemResult={poemResult} image={imageDataUrl} onRegenerate={handleGenerate} isRegenerating={isLoading} controls={controls} />
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground p-8 animate-in fade-in-0 zoom-in-95 duration-500">
                 {imageDataUrl ? (

@@ -44,6 +44,9 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
   useEffect(() => {
     setTitle(poemResult.title);
     setPoem(poemResult.poem);
+    // When a new poem is generated, hide insights
+    setShowInsights(false);
+    setInsights(null);
   }, [poemResult]);
 
   const handleGenerateTitle = async () => {
