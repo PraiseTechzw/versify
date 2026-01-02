@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { GeneratePoemFromImageOutput } from '@/ai/flows/generate-poem-from-image';
 import { useToast } from "@/hooks/use-toast"
 import { generatePoemFromImage } from '@/ai/flows/generate-poem-from-image';
@@ -11,6 +11,7 @@ import PoemSkeleton from './PoemSkeleton';
 import { Card, CardContent } from '../ui/card';
 import { Wand2 } from 'lucide-react';
 import Image from 'next/image';
+import { useLibrary } from '@/context/LibraryContext';
 
 export type CreativeControlsState = {
   poetryStyle: string;
@@ -21,19 +22,41 @@ export type CreativeControlsState = {
   keywordEmphasis: string;
 };
 
+const defaultControls: CreativeControlsState = {
+  poetryStyle: 'Free Verse',
+  tone: 'Neutral',
+  length: 'Medium',
+  literalVsSymbolic: 'Balanced',
+  narrative: 'Descriptive',
+  keywordEmphasis: '',
+};
+
 export default function VersifyClient() {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [poemResult, setPoemResult] = useState<GeneratePoemFromImageOutput | null>(null);
-  const [controls, setControls] = useState<CreativeControlsState>({
-    poetryStyle: 'Free Verse',
-    tone: 'Neutral',
-    length: 'Medium',
-    literalVsSymbolic: 'Balanced',
-    narrative: 'Descriptive',
-    keywordEmphasis: '',
-  });
+  const [controls, setControls] = useState<CreativeControlsState>(defaultControls);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { poemForEditing, clearPoemForEditing } = useLibrary();
+
+  useEffect(() => {
+    if (poemForEditing) {
+      setImageDataUrl(poemForEditing.image.imageUrl);
+      setPoemResult({
+        title: poemForEditing.title,
+        poem: poemForEditing.poem,
+      });
+      // Here you could also restore creative controls if they were saved with the poem
+      // For now, we'll just use the default controls when editing.
+      setControls(poemForEditing.controls || defaultControls);
+      clearPoemForEditing(); // Clear after loading
+      toast({
+        title: "Editing Poem",
+        description: `Loaded "${poemForEditing.title}" into the editor.`
+      })
+    }
+  }, [poemForEditing, clearPoemForEditing, toast]);
+
 
   const handleGenerate = async () => {
     if (!imageDataUrl) {

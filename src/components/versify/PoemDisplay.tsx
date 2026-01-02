@@ -15,15 +15,17 @@ import PoemLine from './PoemLine';
 import { useLibrary } from '@/context/LibraryContext';
 import { useAuth } from '@/context/AuthContext';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import type { CreativeControlsState } from './VersifyClient';
 
 interface PoemDisplayProps {
   poemResult: GeneratePoemFromImageOutput;
   image: string;
   onRegenerate: () => void;
   isRegenerating: boolean;
+  controls: CreativeControlsState;
 }
 
-export default function PoemDisplay({ poemResult, image, onRegenerate, isRegenerating }: PoemDisplayProps) {
+export default function PoemDisplay({ poemResult, image, onRegenerate, isRegenerating, controls }: PoemDisplayProps) {
   const [title, setTitle] = useState(poemResult.title);
   const [poem, setPoem] = useState(poemResult.poem);
   const [isEditing, setIsEditing] = useState(false);
@@ -121,7 +123,7 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
         description: 'Custom uploaded image',
         imageHint: ''
     };
-    addPoemToLibrary({ title, poem, image: imagePlaceholder });
+    addPoemToLibrary({ title, poem, image: imagePlaceholder, controls });
     toast({ title: "Saved to your library!" });
   }
 

@@ -9,7 +9,6 @@ import type { Poem } from '@/context/LibraryContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Edit, Trash2 } from 'lucide-react';
-import Link from 'next/link';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -25,7 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function PoemDetailPage() {
     const { id } = useParams();
-    const { getPoemById, deletePoem } = useLibrary();
+    const { getPoemById, deletePoem, setPoemForEditing } = useLibrary();
     const router = useRouter();
     const [poem, setPoem] = useState<Poem | null>(null);
     const { toast } = useToast();
@@ -52,6 +51,14 @@ export default function PoemDetailPage() {
             router.push('/library');
         }
     }
+    
+    const handleEdit = () => {
+        if (poem) {
+            setPoemForEditing(poem);
+            router.push('/');
+        }
+    }
+
 
     if (!poem) {
         return (
@@ -85,7 +92,7 @@ export default function PoemDetailPage() {
                                         {poem.poem}
                                     </p>
                                     <div className="flex items-center gap-2 pt-6 mt-auto">
-                                      <Button disabled><Edit className="mr-2 h-4 w-4" /> Edit</Button>
+                                      <Button onClick={handleEdit}><Edit className="mr-2 h-4 w-4" /> Edit</Button>
                                       <AlertDialog>
                                           <AlertDialogTrigger asChild>
                                             <Button variant="outline"><Trash2 className="mr-2 h-4 w-4" /> Delete</Button>
