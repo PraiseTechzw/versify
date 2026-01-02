@@ -151,7 +151,7 @@ export default function PoemDisplay({ poemResult, image }: PoemDisplayProps) {
             <Textarea 
                 value={poem} 
                 onChange={(e) => setPoem(e.target.value)} 
-                className="w-full h-full text-base leading-relaxed bg-transparent border-2 border-dashed" 
+                className="w-full h-full text-base leading-relaxed bg-transparent border-2 border-dashed font-serif" 
                 rows={poem.split('\n').length + 1}
             />
           ) : (
