@@ -34,6 +34,7 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
   const [showInsights, setShowInsights] = useState(false);
   const [insights, setInsights] = useState<PoemInspirationInsightsOutput | null>(null);
   const [isInsightsLoading, setIsInsightsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
   const { addPoemToLibrary } = useLibrary();
   const { user } = useAuth();
@@ -113,19 +114,27 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
     setPoem(lines.join('\n'));
   }
   
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!user) {
         toast({ title: "Please log in to save poems.", variant: "destructive" });
         return;
     }
-    const imagePlaceholder = PlaceHolderImages.find(p => p.imageUrl === image) || {
-        id: `custom-${Date.now()}`,
-        imageUrl: image,
-        description: 'Custom uploaded image',
-        imageHint: ''
-    };
-    addPoemToLibrary({ title, poem, image: imagePlaceholder, controls });
-    toast({ title: "Saved to your library!" });
+    setIsSaving(true);
+    try {
+        const imagePlaceholder = PlaceHolderImages.find(p => p.imageUrl === image) || {
+            id: `custom-${Date.now()}`,
+            imageUrl: image,
+            description: 'Custom uploaded image',
+            imageHint: ''
+        };
+        await addPoemToLibrary({ title, poem, image: imagePlaceholder, controls });
+        toast({ title: "Saved to your library!" });
+    } catch (error) {
+        console.error(error);
+        toast({ title: "Failed to save poem", variant: "destructive" });
+    } finally {
+        setIsSaving(false);
+    }
   }
 
   const detectedItems = [
@@ -196,7 +205,10 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
         </div>
         
         <div className="flex-shrink-0 flex flex-wrap items-center gap-2 pt-4 mt-auto pr-4">
-          <Button onClick={handleSave}><Save className="mr-2 h-4 w-4"/> Save to Library</Button>
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4"/>}
+             Save to Library
+          </Button>
           <Button variant="outline" onClick={handleCopy}><Clipboard className="mr-2 h-4 w-4"/> Copy</Button>
           <Button variant="outline" onClick={handleShare}><Share2 className="mr-2 h-4 w-4"/> Share</Button>
           <Button variant="outline" onClick={handleDownload}><Download className="mr-2 h-4 w-4"/> Download</Button>

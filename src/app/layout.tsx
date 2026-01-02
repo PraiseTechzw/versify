@@ -2,11 +2,10 @@ import type {Metadata} from 'next';
 import Link from 'next/link';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
-import { AuthProvider } from '@/context/AuthContext';
-import { LibraryProvider } from '@/context/LibraryContext';
 import { Inter as FontSans } from "next/font/google"
 import { cn } from '@/lib/utils';
 import { Playfair_Display as FontHeadline } from "next/font/google"
+import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
   title: 'Versify',
@@ -37,11 +36,9 @@ export default function RootLayout({
           fontHeadline.variable
         )}
       >
-        <LibraryProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </LibraryProvider>
+        <FirebaseClientProvider>
+          {children}
+        </FirebaseClientProvider>
         <Toaster />
       </body>
     </html>

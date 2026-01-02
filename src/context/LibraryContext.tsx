@@ -1,13 +1,14 @@
-// THIS IS A MOCK LIBRARY CONTEXT FOR UI DEVELOPMENT
-// DO NOT USE IN PRODUCTION
-
 "use client";
 
 import type { ImagePlaceholder } from '@/lib/placeholder-images';
 import type { CreativeControlsState } from '@/components/versify/VersifyClient';
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { useAuth } from './AuthContext';
+import { useCollection, useDoc } from '@/firebase';
+import { collection, doc, setDoc, deleteDoc, where, query } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
+import { addPoem as addPoemToFirestore, updatePoem as updatePoemInFirestore, deletePoem as deletePoemFromFirestore } from '@/lib/poem-service';
 
-let poemIdCounter = 0;
 
 export interface Poem {
     id: string;
@@ -16,51 +17,60 @@ export interface Poem {
     image: ImagePlaceholder;
     collection?: string | null;
     controls?: CreativeControlsState;
+    userId?: string;
+    createdAt?: any;
 }
 
 interface LibraryContextType {
     library: Poem[];
     collections: string[];
-    addPoemToLibrary: (poem: Omit<Poem, 'id'>) => void;
+    addPoemToLibrary: (poem: Omit<Poem, 'id'>) => Promise<void>;
     getPoemById: (id: string) => Poem | undefined;
-    deletePoem: (id: string) => void;
-    updatePoemCollection: (id: string, collection: string | null) => void;
+    deletePoem: (id: string) => Promise<void>;
+    updatePoemCollection: (id: string, collectionName: string | null) => Promise<void>;
     clearLibrary: () => void;
     poemForEditing: Poem | null;
     setPoemForEditing: (poem: Poem) => void;
     clearPoemForEditing: () => void;
+    loading: boolean;
 }
 
 const LibraryContext = createContext<LibraryContextType | undefined>(undefined);
 
 export function LibraryProvider({ children }: { children: ReactNode }) {
-    const [library, setLibrary] = useState<Poem[]>([]);
+    const { user } = useAuth();
+    const firestore = useFirestore();
+    
+    const poemsQuery = user ? query(collection(firestore, 'poems'), where('userId', '==', user.uid)) : null;
+    const { data: library = [], loading } = useCollection<Poem>(poemsQuery);
+
     const [poemForEditing, setPoemForEditingState] = useState<Poem | null>(null);
     const collections = ['Favorites', 'Drafts'];
 
-    const addPoemToLibrary = (poem: Omit<Poem, 'id'>) => {
-        const newPoem = { ...poem, id: `poem-${poemIdCounter++}` };
-        setLibrary(prevLibrary => [newPoem, ...prevLibrary]);
+    const addPoemToLibrary = async (poem: Omit<Poem, 'id'>) => {
+        if (!user) throw new Error("User not logged in");
+        await addPoemToFirestore(firestore, user.uid, poem);
     };
 
     const getPoemById = (id: string) => {
         return library.find(p => p.id === id);
     }
 
-    const deletePoem = (id: string) => {
-        setLibrary(prevLibrary => prevLibrary.filter(p => p.id !== id));
+    const deletePoem = async (id: string) => {
+        if (!user) throw new Error("User not logged in");
+        await deletePoemFromFirestore(firestore, id);
     }
     
-    const updatePoemCollection = (id: string, collection: string | null) => {
-        setLibrary(prevLibrary => 
-            prevLibrary.map(p => 
-                p.id === id ? { ...p, collection } : p
-            )
-        );
+    const updatePoemCollection = async (id: string, collectionName: string | null) => {
+        if (!user) throw new Error("User not logged in");
+        const poem = library.find(p => p.id === id);
+        if (poem) {
+            await updatePoemInFirestore(firestore, id, { ...poem, collection: collectionName });
+        }
     }
 
     const clearLibrary = () => {
-        setLibrary([]);
+        // This will be handled by logout now
     }
     
     const setPoemForEditing = (poem: Poem) => {
@@ -83,7 +93,8 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
             clearLibrary,
             poemForEditing,
             setPoemForEditing,
-            clearPoemForEditing
+            clearPoemForEditing,
+            loading,
         }}>
             {children}
         </LibraryContext.Provider>

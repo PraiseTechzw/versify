@@ -21,29 +21,28 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { useToast } from '@/hooks/use-toast';
+import { useDoc } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
 
 export default function PoemDetailPage() {
     const { id } = useParams();
-    const { getPoemById, deletePoem, setPoemForEditing } = useLibrary();
+    const firestore = useFirestore();
+    const { data: poem, loading } = useDoc<Poem>(id ? doc(firestore, 'poems', id as string) : null);
+    const { deletePoem, setPoemForEditing } = useLibrary();
     const router = useRouter();
-    const [poem, setPoem] = useState<Poem | null>(null);
     const { toast } = useToast();
 
-
     useEffect(() => {
-        if (id) {
-            const foundPoem = getPoemById(id as string);
-            if (foundPoem) {
-                setPoem(foundPoem);
-            } else {
-                router.push('/library');
-            }
+        if (!loading && !poem) {
+            toast({ title: "Poem not found", variant: "destructive" });
+            router.push('/library');
         }
-    }, [id, getPoemById, router]);
+    }, [poem, loading, router, toast]);
 
-    const handleDelete = () => {
+    const handleDelete = async () => {
         if (poem) {
-            deletePoem(poem.id);
+            await deletePoem(poem.id);
             toast({
                 title: "Poem Deleted",
                 description: `"${poem.title}" has been removed from your library.`,
@@ -60,7 +59,7 @@ export default function PoemDetailPage() {
     }
 
 
-    if (!poem) {
+    if (loading || !poem) {
         return (
             <div className="flex flex-col min-h-screen bg-background text-foreground">
                 <Header />

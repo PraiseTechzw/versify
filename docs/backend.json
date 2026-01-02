@@ -1,0 +1,95 @@
+{
+  "entities": {
+    "Poem": {
+      "title": "Poem",
+      "description": "A poem created by a user.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user who created the poem."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the poem."
+        },
+        "poem": {
+          "type": "string",
+          "description": "The content of the poem."
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "imageUrl": {
+              "type": "string"
+            },
+            "imageHint": {
+              "type": "string"
+            }
+          }
+        },
+        "collection": {
+          "type": "string",
+          "description": "The collection the poem belongs to."
+        },
+        "controls": {
+          "type": "object",
+          "properties": {
+            "poetryStyle": { "type": "string" },
+            "tone": { "type": "string" },
+            "length": { "type": "string" },
+            "literalVsSymbolic": { "type": "string" },
+            "narrative": { "type": "string" },
+            "keywordEmphasis": { "type": "string" }
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The date and time the poem was created."
+        }
+      },
+      "required": ["userId", "title", "poem", "image", "createdAt"]
+    },
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "A user's profile information.",
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "The user's display name."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address."
+        },
+        "photoURL": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of the user's profile picture."
+        }
+      }
+    }
+  },
+  "auth": {
+    "providers": ["google.com", "password"]
+  },
+  "firestore": {
+    "/poems/{poemId}": {
+      "schema": { "$ref": "#/entities/Poem" },
+      "description": "A collection of poems."
+    },
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "A collection of user profiles."
+    }
+  }
+}

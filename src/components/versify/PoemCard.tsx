@@ -5,22 +5,48 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { Poem } from '@/context/LibraryContext';
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { BookMarked, FolderPlus, MoreVertical, Star } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { BookMarked, FolderPlus, MoreVertical, Star, Trash2 } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { useLibrary } from '@/context/LibraryContext';
 import { Badge } from '../ui/badge';
+import { useToast } from '@/hooks/use-toast';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 interface PoemCardProps {
     poem: Poem;
 }
 
 export default function PoemCard({ poem }: PoemCardProps) {
-    const { updatePoemCollection, collections } = useLibrary();
+    const { updatePoemCollection, deletePoem } = useLibrary();
+    const { toast } = useToast();
 
     const handleCollectionChange = (collection: string | null) => {
         updatePoemCollection(poem.id, collection);
+        if(collection){
+            toast({title: `Moved to ${collection}`})
+        } else {
+            toast({title: `Removed from collection`})
+        }
     }
     
+    const handleDelete = async () => {
+        await deletePoem(poem.id);
+        toast({
+            title: "Poem Deleted",
+            description: `"${poem.title}" has been removed from your library.`,
+        })
+    }
+
     return (
         <Card className="overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 h-full flex flex-col group border hover:border-primary/50">
             <Link href={`/poem/${poem.id}`} className='block overflow-hidden'>
@@ -54,6 +80,28 @@ export default function PoemCard({ poem }: PoemCardProps) {
                                     <span>Remove from Collection</span>
                                 </DropdownMenuItem>
                             )}
+                            <DropdownMenuSeparator />
+                             <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                        <Trash2 className="mr-2 h-4 w-4 text-destructive" />
+                                        <span className='text-destructive'>Delete</span>
+                                    </DropdownMenuItem>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This action cannot be undone. This will permanently delete the poem
+                                            "{poem.title}" from your library.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>

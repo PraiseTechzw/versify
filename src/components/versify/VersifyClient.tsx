@@ -12,6 +12,7 @@ import { Card, CardContent } from '../ui/card';
 import { Wand2 } from 'lucide-react';
 import Image from 'next/image';
 import { useLibrary } from '@/context/LibraryContext';
+import { useAuth } from '@/context/AuthContext';
 
 export type CreativeControlsState = {
   poetryStyle: string;
@@ -38,9 +39,15 @@ export default function VersifyClient() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { poemForEditing, clearPoemForEditing } = useLibrary();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (poemForEditing) {
+      if (!user || user.uid !== poemForEditing.userId) {
+        toast({ title: "Cannot edit poem", description: "You can only edit your own poems.", variant: "destructive" });
+        clearPoemForEditing();
+        return;
+      }
       setImageDataUrl(poemForEditing.image.imageUrl);
       setPoemResult({
         title: poemForEditing.title,
@@ -48,16 +55,14 @@ export default function VersifyClient() {
         emotions: [],
         visualElements: [],
       });
-      // Here you could also restore creative controls if they were saved with the poem
-      // For now, we'll just use the default controls when editing.
       setControls(poemForEditing.controls || defaultControls);
-      clearPoemForEditing(); // Clear after loading
+      clearPoemForEditing();
       toast({
         title: "Editing Poem",
         description: `Loaded "${poemForEditing.title}" into the editor.`
       })
     }
-  }, [poemForEditing, clearPoemForEditing, toast]);
+  }, [poemForEditing, clearPoemForEditing, toast, user]);
 
 
   const handleGenerate = async () => {
@@ -66,8 +71,6 @@ export default function VersifyClient() {
       return;
     }
     setIsLoading(true);
-    // Don't clear old result, so it shows while loading
-    // setPoemResult(null); 
     try {
       const result = await generatePoemFromImage({
         photoDataUri: imageDataUrl,
