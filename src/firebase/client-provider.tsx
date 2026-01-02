@@ -1,12 +1,11 @@
+
 'use client';
 
 import {
   useState,
   useEffect,
   type ReactNode,
-  useMemo,
   memo,
-  Suspense,
 } from 'react';
 import { getApps, initializeApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
