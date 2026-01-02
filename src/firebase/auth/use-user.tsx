@@ -54,6 +54,8 @@ export const loginWithGoogle = async () => {
 export const signup = async (email: string, pass: string, displayName: string) => {
   const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
   const user = userCredential.user;
+  
+  // Update the user's profile in Firebase Auth
   await updateFirebaseProfile(user, { displayName });
 
   // Create user profile in Firestore
@@ -61,7 +63,7 @@ export const signup = async (email: string, pass: string, displayName: string) =
   await setDoc(userRef, {
     displayName: displayName,
     email: email,
-    photoURL: user.photoURL
+    photoURL: user.photoURL // Initially null, can be updated later
   });
 };
 
