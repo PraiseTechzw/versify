@@ -39,8 +39,8 @@ export default function SignupPage() {
        <div className="flex items-center justify-center py-12 animate-in fade-in-0 slide-in-from-bottom-12 duration-500">
          <Card className="mx-auto w-full max-w-sm border-0 shadow-none sm:border sm:shadow-sm">
            <CardHeader className="text-center">
-             <Link href="/" className="flex items-center justify-center gap-2 mb-4">
-               <Leaf className="h-8 w-8 text-primary" />
+             <Link href="/" className="group flex items-center justify-center gap-2 mb-4">
+               <Leaf className="h-8 w-8 text-primary transition-transform group-hover:rotate-12" />
                <h1 className="text-3xl font-bold text-primary font-headline">Versify</h1>
              </Link>
              <CardTitle className="text-2xl font-headline">Create an Account</CardTitle>
@@ -81,8 +81,8 @@ export default function SignupPage() {
                    onChange={(e) => setPassword(e.target.value)}
                  />
                </div>
-               <Button type="submit" className="w-full">
-                 <UserPlus className="mr-2 h-4 w-4" />
+               <Button type="submit" className="w-full group">
+                 <UserPlus className="mr-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                  Sign Up
                </Button>
              </form>

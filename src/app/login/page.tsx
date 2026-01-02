@@ -52,8 +52,8 @@ export default function LoginPage() {
        <div className="flex items-center justify-center py-12 animate-in fade-in-0 slide-in-from-bottom-12 duration-500">
          <Card className="mx-auto w-full max-w-sm border-0 shadow-none sm:border sm:shadow-sm">
            <CardHeader className="text-center">
-             <Link href="/" className="flex items-center justify-center gap-2 mb-4">
-               <Leaf className="h-8 w-8 text-primary" />
+             <Link href="/" className="group flex items-center justify-center gap-2 mb-4">
+               <Leaf className="h-8 w-8 text-primary transition-transform group-hover:rotate-12" />
                <h1 className="text-3xl font-bold text-primary font-headline">Versify</h1>
              </Link>
              <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
@@ -82,8 +82,8 @@ export default function LoginPage() {
                    onChange={(e) => setPassword(e.target.value)}
                  />
                </div>
-               <Button type="submit" className="w-full">
-                 <LogIn className="mr-2 h-4 w-4" />
+               <Button type="submit" className="w-full group">
+                 <LogIn className="mr-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                  Sign In
                </Button>
                <div className="relative my-2">
@@ -94,8 +94,8 @@ export default function LoginPage() {
                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
                  </div>
                </div>
-               <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
-                 <svg role="img" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
+               <Button variant="outline" className="w-full group" onClick={handleGoogleLogin}>
+                 <svg role="img" viewBox="0 0 24 24" className="mr-2 h-4 w-4 transition-transform group-hover:scale-110">
                    <path
                      fill="currentColor"
                      d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.05 1.05-2.58 2.22-4.82 2.22-4.14 0-7.5-3.44-7.5-7.6s3.36-7.6 7.5-7.6c2.34 0 3.87.94 4.78 1.84l2.6-2.58C18.14 2.14 15.48 1 12.48 1 7.02 1 3 5.02 3 10.5s4.02 9.5 9.48 9.5c2.82 0 5.26-1.04 7.02-2.72 1.84-1.56 2.68-4.14 2.68-6.62 0-.6-.05-1.16-.14-1.72H12.48z"
