@@ -9,12 +9,13 @@ import CreativeControls from "@/components/versify/CreativeControls"
 import PoemDisplay from "@/components/versify/PoemDisplay"
 import PoemSkeleton from "./PoemSkeleton"
 import Header from "./Header"
-import { Wand2, Leaf, Hash, Menu, Sparkles, ChevronRight, ChevronLeft } from "lucide-react"
+import { Wand2, Hash, Menu, Sparkles, ChevronRight, ChevronLeft, X } from "lucide-react"
 import Image from "next/image"
 import { useLibrary } from "@/context/LibraryContext"
 import { useSupabaseUser } from "@/hooks/use-supabase-user"
 import { Button } from "../ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet"
+import { VersifyLogo } from "../ui/versify-logo"
 
 /**
  * @type {CreativeControlsState}
@@ -51,6 +52,7 @@ export default function VersifyClient() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
+  const [trialUsed, setTrialUsed] = useState(false)
   const { toast } = useToast()
   const { poemForEditing, clearPoemForEditing } = useLibrary()
   const { user } = useSupabaseUser()
@@ -58,8 +60,18 @@ export default function VersifyClient() {
 
   useEffect(() => {
     setIsMounted(true)
-    // Don't load saved session on initial mount - start fresh
-  }, [])
+    // Check if trial has been used for non-logged-in users
+    if (!user) {
+      const trialUsedStorage = localStorage.getItem("versify-trial-used")
+      if (trialUsedStorage === "true") {
+        setTrialUsed(true)
+      }
+    } else {
+      // Reset trial for logged-in users
+      setTrialUsed(false)
+      localStorage.removeItem("versify-trial-used")
+    }
+  }, [user])
 
   useEffect(() => {
     if (!isMounted) return
@@ -113,6 +125,21 @@ export default function VersifyClient() {
       toast({ title: "Please upload an image first.", variant: "destructive" })
       return
     }
+
+    // Check trial limit for non-logged-in users
+    if (!user && trialUsed) {
+      toast({
+        title: "Trial limit reached",
+        description: "Sign up to continue generating unlimited poems!",
+        variant: "destructive",
+      })
+      // Redirect to signup after a short delay
+      setTimeout(() => {
+        window.location.href = "/signup"
+      }, 2000)
+      return
+    }
+
     setIsLoading(true)
     try {
       const result = await generatePoemFromImage({
@@ -121,6 +148,12 @@ export default function VersifyClient() {
       })
       setPoemResult(result)
       setIsSidebarOpen(false)
+
+      // Mark trial as used for non-logged-in users
+      if (!user) {
+        setTrialUsed(true)
+        localStorage.setItem("versify-trial-used", "true")
+      }
     } catch (error) {
       console.error(error)
       toast({
@@ -149,8 +182,8 @@ export default function VersifyClient() {
       {/* Sidebar Header - Fixed */}
       <div className="p-6 border-b border-border flex-shrink-0 bg-gradient-to-br from-primary/5 to-primary/10">
         <div className="flex items-center gap-3 mb-3">
-          <div className="bg-primary/20 p-3 rounded-xl shadow-lg">
-            <Leaf className="h-6 w-6 text-primary" />
+          <div className="bg-primary/20 p-4 rounded-xl shadow-lg">
+            <VersifyLogo size={64} className="text-primary" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-primary font-headline">Versify</h1>
@@ -161,6 +194,27 @@ export default function VersifyClient() {
           <Sparkles className="h-4 w-4 text-primary" />
           <p className="text-xs text-foreground font-medium">Transform images into poetry</p>
         </div>
+
+        {/* Trial Status for Non-Logged-In Users */}
+        {!user && (
+          <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${
+            trialUsed 
+              ? "bg-destructive/10 border-destructive/20" 
+              : "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800"
+          }`}>
+            {trialUsed ? (
+              <>
+                <X className="h-4 w-4 text-destructive" />
+                <p className="text-xs text-destructive font-medium">Trial used - Sign up for more!</p>
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4 text-green-600" />
+                <p className="text-xs text-green-600 dark:text-green-400 font-medium">Free trial: 1 poem remaining</p>
+              </>
+            )}
+          </div>
+        )}
 
         {/* Progress Steps */}
         <div className="flex items-center gap-2 mt-4">
@@ -245,12 +299,41 @@ export default function VersifyClient() {
               scrollbarWidth: 'thin',
               scrollbarColor: 'hsl(var(--border)) transparent'
             }}>
-              <CreativeControls
-                controls={controls}
-                setControls={setControls}
-                onGenerate={handleGenerate}
-                isLoading={isLoading}
-              />
+              {!user && trialUsed ? (
+                <div className="text-center py-8 space-y-4">
+                  <div className="bg-gradient-to-br from-primary/20 to-primary/5 p-6 rounded-xl">
+                    <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Trial Complete!</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      You've used your free poem generation. Sign up to create unlimited poems!
+                    </p>
+                    <div className="space-y-2">
+                      <Button 
+                        onClick={() => window.location.href = "/signup"}
+                        className="w-full"
+                        size="sm"
+                      >
+                        Sign Up - It's Free!
+                      </Button>
+                      <Button 
+                        onClick={() => window.location.href = "/login"}
+                        variant="outline"
+                        className="w-full"
+                        size="sm"
+                      >
+                        Already have an account?
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <CreativeControls
+                  controls={controls}
+                  setControls={setControls}
+                  onGenerate={handleGenerate}
+                  isLoading={isLoading}
+                />
+              )}
             </div>
           </div>
         )}
@@ -308,7 +391,14 @@ export default function VersifyClient() {
             <Hash className="h-5 w-5 text-muted-foreground" />
             <span className="font-semibold text-foreground">poem-generator</span>
             <div className="h-5 w-px bg-border mx-1 hidden sm:block" />
-            <span className="text-sm text-muted-foreground hidden sm:block">Create beautiful poems from images</span>
+            <span className="text-sm text-muted-foreground hidden sm:block">
+              {!user && trialUsed 
+                ? "Trial complete - Sign up for more!" 
+                : !user 
+                ? "Free trial: 1 poem remaining"
+                : "Create beautiful poems from images"
+              }
+            </span>
           </div>
 
           {/* Header controls */}
@@ -320,6 +410,40 @@ export default function VersifyClient() {
           scrollbarWidth: 'thin',
           scrollbarColor: 'hsl(var(--border)) transparent'
         }}>
+          {/* Trial Banner for Non-Logged-In Users */}
+          {!user && trialUsed && (
+            <div className="bg-gradient-to-r from-primary/10 to-accent/10 border-b border-border">
+              <div className="max-w-5xl mx-auto p-4 sm:p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Trial Complete!</p>
+                      <p className="text-xs text-muted-foreground">Sign up to generate unlimited poems</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={() => window.location.href = "/signup"}
+                      size="sm"
+                      className="text-xs"
+                    >
+                      Sign Up Free
+                    </Button>
+                    <Button 
+                      onClick={() => window.location.href = "/login"}
+                      variant="outline"
+                      size="sm"
+                      className="text-xs"
+                    >
+                      Login
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
             {isLoading && !poemResult ? (
               <div className="discord-message">
@@ -371,6 +495,16 @@ export default function VersifyClient() {
                     <p className="text-base leading-relaxed mb-8 text-muted-foreground">
                       Upload an image to get started. Our AI will create beautiful poetry inspired by your visual content.
                     </p>
+                    {!user && (
+                      <div className="mb-6 p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
+                        <p className="text-sm text-green-700 dark:text-green-300 font-medium">
+                          🎉 Free Trial: Generate 1 poem without signing up!
+                        </p>
+                        <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                          Sign up for unlimited poem generation
+                        </p>
+                      </div>
+                    )}
                     <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
                       <SheetTrigger asChild>
                         <Button size="lg" className="lg:hidden shadow-md">

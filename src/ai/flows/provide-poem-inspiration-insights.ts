@@ -9,7 +9,7 @@
  * - `PoemInspirationInsightsOutput`: The Zod schema for the output.
  */
 
-import {ai} from '@/ai/genkit';
+import {ai, getAvailableModel, trackModelUsage} from '@/ai/genkit';
 import {z} from 'genkit';
 
 /**
@@ -65,7 +65,26 @@ const providePoemInspirationInsightsFlow = ai.defineFlow(
     outputSchema: PoemInspirationInsightsOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    const selectedModel = getAvailableModel();
+    
+    try {
+      const {output} = await prompt(input, { model: selectedModel });
+      trackModelUsage(selectedModel);
+      return output!;
+    } catch (error: any) {
+      if (error.code === 429 || error.status === 'RESOURCE_EXHAUSTED') {
+        const fallbackModel = getAvailableModel();
+        if (fallbackModel !== selectedModel) {
+          try {
+            const {output} = await prompt(input, { model: fallbackModel });
+            trackModelUsage(fallbackModel);
+            return output!;
+          } catch (fallbackError) {
+            throw new Error('All AI models are currently rate limited. Please try again in a few minutes.');
+          }
+        }
+      }
+      throw error;
+    }
   }
 );

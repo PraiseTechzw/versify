@@ -8,12 +8,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Leaf, UserPlus, Eye, EyeOff, ArrowLeft, Loader2, Check, X } from "lucide-react"
+import { UserPlus, Eye, EyeOff, ArrowLeft, Loader2, Check, X } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { signup, loginWithGoogle } from "@/lib/supabase/auth"
 import { createClient } from "@/lib/supabase/client"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "@/lib/utils"
+import { VersifyLogo } from "@/components/ui/versify-logo"
 
 export default function SignupPage() {
   const [email, setEmail] = useState("")
@@ -137,13 +138,13 @@ export default function SignupPage() {
         </div>
 
         {/* Logo */}
-        <div className="flex items-center gap-3 mb-8">
-          <div className="bg-primary/10 p-3 rounded-xl">
-            <Leaf className="h-8 w-8 text-primary" />
+        <div className="flex items-center gap-4 mb-8">
+          <div className="bg-primary/10 p-4 rounded-xl">
+            <VersifyLogo size={80} className="text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground font-headline">Versify</h1>
-            <p className="text-sm text-muted-foreground">AI Poetry Generator</p>
+            <h1 className="text-3xl font-bold text-foreground font-headline">Versify</h1>
+            <p className="text-base text-muted-foreground">AI Poetry Generator</p>
           </div>
         </div>
 

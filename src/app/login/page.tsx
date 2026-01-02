@@ -7,11 +7,12 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Leaf, LogIn, Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react"
+import { LogIn, Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { login, loginWithGoogle } from "@/lib/supabase/auth"
 import { createClient } from "@/lib/supabase/client"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { VersifyLogo } from "@/components/ui/versify-logo"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -69,13 +70,13 @@ export default function LoginPage() {
         </div>
 
         {/* Logo */}
-        <div className="flex items-center gap-3 mb-8">
-          <div className="bg-primary/10 p-3 rounded-xl">
-            <Leaf className="h-8 w-8 text-primary" />
+        <div className="flex items-center gap-4 mb-8">
+          <div className="bg-primary/10 p-4 rounded-xl">
+            <VersifyLogo size={80} className="text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground font-headline">Versify</h1>
-            <p className="text-sm text-muted-foreground">AI Poetry Generator</p>
+            <h1 className="text-3xl font-bold text-foreground font-headline">Versify</h1>
+            <p className="text-base text-muted-foreground">AI Poetry Generator</p>
           </div>
         </div>
 
@@ -208,7 +209,7 @@ export default function LoginPage() {
       <div className="hidden lg:flex lg:flex-1 relative bg-muted">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20" />
         <Image
-          src="https://images.unsplash.com/photo-1507525428034-b723a9ce6899?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxvY2VhbiUyMHN1bnNldHxlbnwwfHx8fDE3NjczMzM1MDh8MA&ixlib=rb-4.1.0&q=80&w=1080"
+          src="https://images.unsplash.com/photo-1656672248933-cba5f142d44a?q=80&w=1587&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3Dq=80&w=1080"
           alt="A vibrant sunset over a calm ocean"
           fill
           sizes="50vw"

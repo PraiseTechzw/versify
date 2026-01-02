@@ -15,7 +15,7 @@
     {
       "id": "ocean-sunset",
       "description": "A vibrant sunset over a calm ocean.",
-      "imageUrl": "https://images.unsplash.com/photo-1507525428034-b723a9ce6899?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxvY2VhbiUyMHN1bnNldHxlbnwwfHx8fDE3NjczMzM1MDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1570783192797-43327c1742ec?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3Dq=80&w=1080",
       "imageHint": "ocean sunset"
     },
     {
@@ -33,8 +33,100 @@
     {
       "id": "romantic-picnic",
       "description": "A romantic picnic setting with roses and champagne.",
-      "imageUrl": "https://images.unsplash.com/photo-1515934751635-481eff12693b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxyb21hbnRpYyUyMHBpY25pY3xlbnwwfHx8fDE3NjczODUyNDJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1687013286568-39b99ca5d2e3?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3Dq=80&w=1080",
       "imageHint": "romantic picnic"
+    },
+    {
+      "id": "city-skyline",
+      "description": "A modern city skyline at dusk with glowing lights.",
+      "imageUrl": "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjaXR5JTIwc2t5bGluZXxlbnwwfHx8fDE3NjczODUzMDB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "city skyline"
+    },
+    {
+      "id": "cherry-blossoms",
+      "description": "Beautiful pink cherry blossoms in full bloom during spring.",
+      "imageUrl": "https://images.unsplash.com/photo-1522383225653-ed111181a951?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjaGVycnklMjBibG9zc29tc3xlbnwwfHx8fDE3NjczODUzMjB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cherry blossoms"
+    },
+    {
+      "id": "desert-dunes",
+      "description": "Golden sand dunes stretching endlessly under a clear sky.",
+      "imageUrl": "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkZXNlcnQlMjBkdW5lc3xlbnwwfHx8fDE3NjczODUzNDB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "desert dunes"
+    },
+    {
+      "id": "waterfall",
+      "description": "A majestic waterfall cascading down moss-covered rocks.",
+      "imageUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx3YXRlcmZhbGx8ZW58MHx8fHwxNzY3Mzg1MzYwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "waterfall"
+    },
+    {
+      "id": "autumn-leaves",
+      "description": "Vibrant autumn leaves in shades of red, orange, and gold.",
+      "imageUrl": "https://images.unsplash.com/photo-1507041957456-9c397ce39c97?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhdXR1bW4lMjBsZWF2ZXN8ZW58MHx8fHwxNzY3Mzg1MzgwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "autumn leaves"
+    },
+    {
+      "id": "lighthouse",
+      "description": "A solitary lighthouse standing guard on a rocky coastline.",
+      "imageUrl": "https://images.unsplash.com/photo-1518837695005-2083093ee35b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxsaWdodGhvdXNlfGVufDB8fHx8MTc2NzM4NTQwMHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "lighthouse"
+    },
+    {
+      "id": "coffee-morning",
+      "description": "A cozy morning scene with coffee, books, and warm sunlight.",
+      "imageUrl": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb2ZmZWUlMjBtb3JuaW5nfGVufDB8fHx8MTc2NzM4NTQyMHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "coffee morning"
+    },
+    
+    {
+      "id": "vintage-library",
+      "description": "An old library with towering bookshelves and warm lighting.",
+      "imageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx2aW50YWdlJTIwbGlicmFyeXxlbnwwfHx8fDE3NjczODU0NjB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "vintage library"
+    },
+    {
+      "id": "rainy-window",
+      "description": "Raindrops on a window with a blurred cityscape beyond.",
+      "imageUrl": "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyYWlueSUyMHdpbmRvd3xlbnwwfHx8fDE3NjczODU0ODB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "rainy window"
+    },
+    {
+      "id": "campfire-night",
+      "description": "A warm campfire under a star-filled night sky.",
+      "imageUrl": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjYW1wZmlyZSUyMG5pZ2h0fGVufDB8fHx8MTc2NzM4NTUwMHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "campfire night"
+    },
+    {
+      "id": "flower-field",
+      "description": "A vast field of colorful wildflowers swaying in the breeze.",
+      "imageUrl": "https://images.unsplash.com/photo-1490750967868-88aa4486c946?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmbG93ZXIlMjBmaWVsZHxlbnwwfHx8fDE3NjczODU1MjB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "flower field"
+    },
+    {
+      "id": "snowy-cabin",
+      "description": "A cozy wooden cabin surrounded by fresh snow and pine trees.",
+      "imageUrl": "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzbm93eSUyMGNhYmluJTIwd2ludGVyfGVufDB8fHx8MTc2NzM4NTU0MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "snowy cabin"
+    },
+    {
+      "id": "golden-wheat",
+      "description": "Golden wheat fields swaying gently in the summer breeze.",
+      "imageUrl": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxnb2xkZW4lMjB3aGVhdCUyMGZpZWxkfGVufDB8fHx8MTc2NzM4NTU2MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "golden wheat field"
+    },
+    
+    {
+      "id": "misty-mountains",
+      "description": "Misty mountain peaks emerging through morning clouds.",
+      "imageUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtaXN0eSUyMG1vdW50YWluc3xlbnwwfHx8fDE3NjczODU2MDB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "misty mountains"
+    },
+    {
+      "id": "developer-praise",
+      "description": "Praise Masunga - Developer and Creator of Versify AI Poetry Generator.",
+      "imageUrl": "/praise.png",
+      "imageHint": "developer portrait"
     }
   ]
 }

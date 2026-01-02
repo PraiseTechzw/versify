@@ -1,10 +1,10 @@
-# Versify 🍃
+# Versify 🎨
 
 **Transform images into beautiful poetry with AI**
 
 Versify is a modern web application that uses artificial intelligence to generate unique poems inspired by your images. Built with Next.js and powered by Google's Gemini AI, it offers a Discord-inspired interface for creating, customizing, and managing your poetic creations.
 
-![Versify Banner](public/placeholder-logo.svg)
+![Versify Logo](public/icon.png)
 
 ## ✨ Features
 

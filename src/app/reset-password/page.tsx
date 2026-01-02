@@ -7,11 +7,12 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Leaf, Lock, ArrowLeft, Loader2, Eye, EyeOff, Check, X } from "lucide-react"
+import { Lock, ArrowLeft, Loader2, Eye, EyeOff, Check, X } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { createClient } from "@/lib/supabase/client"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "@/lib/utils"
+import { VersifyLogo } from "@/components/ui/versify-logo"
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("")
@@ -111,9 +112,9 @@ export default function ResetPasswordPage() {
         </div>
 
         {/* Logo */}
-        <div className="flex items-center gap-3 mb-8">
-          <div className="bg-primary/10 p-3 rounded-xl">
-            <Leaf className="h-8 w-8 text-primary" />
+        <div className="flex items-center gap-4 mb-8">
+          <div className="bg-primary/10 p-4 rounded-xl">
+            <VersifyLogo size={80} className="text-primary" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground font-headline">Versify</h1>

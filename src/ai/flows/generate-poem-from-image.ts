@@ -11,7 +11,7 @@
  * - `GeneratePoemFromImageOutput`: The Zod schema for the output of the generation.
  */
 
-import {ai} from '@/ai/genkit';
+import {ai, getAvailableModel, trackModelUsage} from '@/ai/genkit';
 import {z} from 'genkit';
 
 /**
@@ -41,7 +41,7 @@ const GeneratePoemFromImageOutputSchema = z.object({
   emotions: z.array(z.string()).optional().describe('The emotions detected in the image.'),
   visualElements: z.array(z.string()).optional().describe('The visual elements detected in the image.'),
 });
-export type GeneratePoemFromImageOutput = z;
+export type GeneratePoemFromImageOutput = z.infer<typeof GeneratePoemFromImageOutputSchema>;
 
 /**
  * Generates a poem based on an image and a set of creative controls.
@@ -85,7 +85,34 @@ const generatePoemFromImageFlow = ai.defineFlow(
     outputSchema: GeneratePoemFromImageOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    const selectedModel = getAvailableModel();
+    console.log(`Using model: ${selectedModel}`);
+    
+    try {
+      const {output} = await prompt(input, { model: selectedModel });
+      trackModelUsage(selectedModel);
+      return output!;
+    } catch (error: any) {
+      // If rate limited, try with a different model
+      if (error.code === 429 || error.status === 'RESOURCE_EXHAUSTED') {
+        console.warn(`Rate limit hit for ${selectedModel}, trying alternative model...`);
+        
+        // Try with a different model
+        const fallbackModel = getAvailableModel();
+        if (fallbackModel !== selectedModel) {
+          try {
+            const {output} = await prompt(input, { model: fallbackModel });
+            trackModelUsage(fallbackModel);
+            return output!;
+          } catch (fallbackError) {
+            console.error('All models exhausted:', fallbackError);
+            throw new Error('All AI models are currently rate limited. Please try again in a few minutes.');
+          }
+        }
+      }
+      
+      // Re-throw the original error if it's not a rate limit issue
+      throw error;
+    }
   }
 );

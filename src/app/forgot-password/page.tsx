@@ -7,10 +7,11 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Leaf, Mail, ArrowLeft, Loader2, CheckCircle } from "lucide-react"
+import { Mail, ArrowLeft, Loader2, CheckCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { createClient } from "@/lib/supabase/client"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { VersifyLogo } from "@/components/ui/versify-logo"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
@@ -61,9 +62,9 @@ export default function ForgotPasswordPage() {
 
           {/* Success State */}
           <div className="text-center space-y-6">
-            <div className="flex items-center gap-3 justify-center mb-8">
-              <div className="bg-primary/10 p-3 rounded-xl">
-                <Leaf className="h-8 w-8 text-primary" />
+            <div className="flex items-center gap-4 justify-center mb-8">
+              <div className="bg-primary/10 p-4 rounded-xl">
+                <VersifyLogo size={80} className="text-primary" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-foreground font-headline">Versify</h1>
@@ -142,9 +143,9 @@ export default function ForgotPasswordPage() {
         </div>
 
         {/* Logo */}
-        <div className="flex items-center gap-3 mb-8">
-          <div className="bg-primary/10 p-3 rounded-xl">
-            <Leaf className="h-8 w-8 text-primary" />
+        <div className="flex items-center gap-4 mb-8">
+          <div className="bg-primary/10 p-4 rounded-xl">
+            <VersifyLogo size={80} className="text-primary" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground font-headline">Versify</h1>

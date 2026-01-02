@@ -272,6 +272,40 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
           Download
         </Button>
       </div>
+
+      {/* Trial Completion Message for Non-Logged-In Users */}
+      {!user && (
+        <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg p-4 border border-primary/20">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-4 h-4 text-primary" />
+            </div>
+            <div className="flex-1">
+              <h4 className="font-semibold text-foreground mb-1">🎉 Trial Complete!</h4>
+              <p className="text-sm text-muted-foreground mb-3">
+                You've used your free poem generation. Sign up to create unlimited poems, save to your library, and access advanced features!
+              </p>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => window.location.href = "/signup"}
+                  size="sm"
+                  className="text-xs"
+                >
+                  Sign Up Free
+                </Button>
+                <Button 
+                  onClick={() => window.location.href = "/login"}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                >
+                  Already have an account?
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

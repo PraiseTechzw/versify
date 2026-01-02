@@ -1,5 +1,6 @@
 import Link from "next/link"
-import { ArrowLeft, Leaf } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
+import { VersifyLogo } from "@/components/ui/versify-logo"
 
 export default function PrivacyPage() {
   return (
@@ -12,9 +13,9 @@ export default function PrivacyPage() {
               <ArrowLeft className="h-4 w-4" />
               <span className="text-sm">Back to Versify</span>
             </Link>
-            <div className="flex items-center gap-2">
-              <Leaf className="h-6 w-6 text-primary" />
-              <span className="font-bold text-primary font-headline">Versify</span>
+            <div className="flex items-center gap-3">
+              <VersifyLogo size={48} className="text-primary" />
+              <span className="font-bold text-primary font-headline text-lg">Versify</span>
             </div>
           </div>
         </div>
