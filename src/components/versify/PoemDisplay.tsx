@@ -16,6 +16,7 @@ import { useLibrary } from '@/context/LibraryContext';
 import { useAuth } from '@/context/AuthContext';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import type { CreativeControlsState } from './VersifyClient';
+import { Badge } from '../ui/badge';
 
 interface PoemDisplayProps {
   poemResult: GeneratePoemFromImageOutput;
@@ -127,6 +128,11 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
     toast({ title: "Saved to your library!" });
   }
 
+  const detectedItems = [
+    ...(poemResult.visualElements || []).map(item => ({type: 'Visual', value: item})),
+    ...(poemResult.emotions || []).map(item => ({type: 'Emotion', value: item}))
+  ];
+
   return (
     <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 h-full animate-in fade-in duration-500">
       <div className="relative lg:w-1/3 aspect-square lg:aspect-auto rounded-xl overflow-hidden shadow-md">
@@ -146,6 +152,13 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
                   </Button>
               </div>
           </div>
+          { detectedItems.length > 0 && !showInsights &&
+            <div className="flex flex-wrap gap-2 mt-3">
+              {detectedItems.map((item, index) => (
+                <Badge key={index} variant={item.type === 'Visual' ? 'secondary' : 'outline'}>{item.value}</Badge>
+              ))}
+            </div>
+          }
           <div className="flex items-center gap-2 mt-4 mb-2">
             <Button variant="ghost" size="sm" onClick={() => setIsEditing(!isEditing)}><Edit className="h-4 w-4 mr-2"/> {isEditing ? "View" : "Edit"}</Button>
             <Button variant="ghost" size="sm" onClick={handleFetchInsights}>

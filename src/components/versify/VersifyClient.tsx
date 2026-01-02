@@ -64,7 +64,8 @@ export default function VersifyClient() {
       return;
     }
     setIsLoading(true);
-    setPoemResult(null);
+    // Don't clear old result, so it shows while loading
+    // setPoemResult(null); 
     try {
       const result = await generatePoemFromImage({
         photoDataUri: imageDataUrl,
@@ -95,10 +96,10 @@ export default function VersifyClient() {
       <div className="md:col-span-7 lg:col-span-8 xl:col-span-9">
         <Card className="h-full w-full shadow-lg">
           <CardContent className="p-6 h-full">
-            {isLoading ? (
+            {isLoading && !poemResult ? (
               <PoemSkeleton />
             ) : poemResult ? (
-              <PoemDisplay key={poemResult.poem} poemResult={poemResult} image={imageDataUrl!} onRegenerate={handleGenerate} isRegenerating={isLoading} />
+              <PoemDisplay key={poemResult.poem} poemResult={poemResult} image={imageDataUrl!} onRegenerate={handleGenerate} isRegenerating={isLoading} controls={controls} />
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground p-8 animate-in fade-in">
                 {imageDataUrl ? (

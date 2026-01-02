@@ -15,7 +15,8 @@ const GeneratePoemFromImageInputSchema = z.object({
   photoDataUri: z
     .string()
     .describe(
-      'A photo to generate a poem from, as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.'  ),
+      'A photo to generate a poem from, as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.'
+    ),
   poetryStyle: z.string().optional().describe('The style of poetry to generate.'),
   tone: z.string().optional().describe('The tone of the poem.'),
   length: z.string().optional().describe('The desired length of the poem (e.g., short, medium, long).'),
@@ -28,8 +29,8 @@ export type GeneratePoemFromImageInput = z.infer<typeof GeneratePoemFromImageInp
 const GeneratePoemFromImageOutputSchema = z.object({
   title: z.string().describe('The title of the poem.'),
   poem: z.string().describe('The generated poem.'),
-  emotions: z.string().optional().describe('The emotions detected in the image.'),
-  visualElements: z.string().optional().describe('The visual elements detected in the image.'),
+  emotions: z.array(z.string()).optional().describe('The emotions detected in the image.'),
+  visualElements: z.array(z.string()).optional().describe('The visual elements detected in the image.'),
 });
 export type GeneratePoemFromImageOutput = z.infer<typeof GeneratePoemFromImageOutputSchema>;
 
