@@ -1,3 +1,28 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "forest-path",
+      "description": "A winding path through a sunlit forest.",
+      "imageUrl": "https://images.unsplash.com/photo-1592859600972-1b0834d83747?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmb3Jlc3QlMjBwYXRofGVufDB8fHx8MTc2NzMxMzAwMXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "forest path"
+    },
+    {
+      "id": "mountain-lake",
+      "description": "A calm mountain lake reflecting a clear blue sky.",
+      "imageUrl": "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxtb3VudGFpbiUyMGxha2V8ZW58MHx8fHwxNzY3MzI1MjE1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "mountain lake"
+    },
+    {
+      "id": "ocean-sunset",
+      "description": "A vibrant sunset over a calm ocean.",
+      "imageUrl": "https://images.unsplash.com/photo-1533371452382-d45a9da51ad9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxvY2VhbiUyMHN1bnNldHxlbnwwfHx8fDE3NjczMzg1MDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "ocean sunset"
+    },
+    {
+      "id": "starry-night",
+      "description": "A clear night sky full of stars over a mountain range.",
+      "imageUrl": "https://images.unsplash.com/photo-1522124624696-7ea32eb9592c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzdGFycnklMjBuaWdodHxlbnwwfHx8fDE3NjczMzUyMzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "starry night"
+    }
+  ]
 }
