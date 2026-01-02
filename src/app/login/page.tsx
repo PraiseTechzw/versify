@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -117,12 +118,12 @@ export default function LoginPage() {
            </CardFooter>
          </Card>
        </div>
-       <div className="hidden bg-muted lg:block">
+       <div className="hidden bg-muted lg:block relative">
          <Image
            src="https://images.unsplash.com/photo-1533371452382-d45a9da51ad9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxvY2VhbiUyMHN1bnNldHxlbnwwfHx8fDE3NjczMzM1MDh8MA&ixlib=rb-4.1.0&q=80&w=1080"
            alt="A vibrant sunset over a calm ocean"
-           width="1920"
-           height="1080"
+           fill
+           sizes="50vw"
            className="h-full w-full object-cover animate-in fade-in-0 duration-1000"
          />
        </div>

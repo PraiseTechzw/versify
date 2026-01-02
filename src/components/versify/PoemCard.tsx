@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from 'next/image';
@@ -51,7 +52,7 @@ export default function PoemCard({ poem }: PoemCardProps) {
         <Card className="overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 h-full flex flex-col group border hover:border-primary/50">
             <Link href={`/poem/${poem.id}`} className='block overflow-hidden'>
                 <div className="relative aspect-video w-full">
-                    <Image src={poem.image.imageUrl} alt={poem.image.description} layout="fill" objectFit="cover" className="group-hover:scale-105 transition-transform duration-300" />
+                    <Image src={poem.image.imageUrl} alt={poem.image.description} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
             </Link>
             <CardContent className="p-4 flex-1 flex flex-col">

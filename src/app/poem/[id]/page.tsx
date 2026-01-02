@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Header from '@/components/versify/Header';
@@ -82,7 +83,7 @@ export default function PoemDetailPage() {
                     <Card className="overflow-hidden shadow-lg">
                         <div className="grid md:grid-cols-2">
                             <div className="relative aspect-square md:aspect-auto">
-                                <Image src={poem.image.imageUrl} alt={poem.image.description} layout="fill" objectFit="cover" />
+                                <Image src={poem.image.imageUrl} alt={poem.image.description} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
                             </div>
                             <div className="flex flex-col">
                                 <CardContent className="p-6 flex-1 flex flex-col">

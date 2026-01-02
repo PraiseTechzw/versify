@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from 'react';
@@ -14,6 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog"
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { useToast } from '@/hooks/use-toast';
@@ -149,7 +151,7 @@ export default function ImageUploader({ onImageUpload, currentImage }: ImageUplo
         >
           {currentImage ? (
              <div className="relative aspect-video w-full">
-                <Image src={currentImage} alt="Uploaded preview" layout="fill" objectFit="cover" className="rounded-md animate-in fade-in duration-500" />
+                <Image src={currentImage} alt="Uploaded preview" fill sizes="100%" className="rounded-md animate-in fade-in duration-500 object-cover" />
                 <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" onClick={handleClearImage}>
                     <X className="h-4 w-4" />
                 </Button>
@@ -186,6 +188,9 @@ export default function ImageUploader({ onImageUpload, currentImage }: ImageUplo
               <DialogContent className="max-w-xl">
                   <DialogHeader>
                       <DialogTitle className="font-headline">Camera Capture</DialogTitle>
+                      <DialogDescription>
+                        Center your subject in the frame and click capture.
+                      </DialogDescription>
                   </DialogHeader>
                   <div className='relative aspect-video w-full bg-muted rounded-md overflow-hidden mt-4'>
                       <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
@@ -225,12 +230,15 @@ export default function ImageUploader({ onImageUpload, currentImage }: ImageUplo
               <DialogContent className="sm:max-w-[625px]">
                 <DialogHeader>
                   <DialogTitle className="font-headline">Choose an Inspiration</DialogTitle>
+                  <DialogDescription>
+                    Select an image from our gallery to spark your creativity.
+                  </DialogDescription>
                 </DialogHeader>
                 <div className="grid grid-cols-2 gap-4 py-4">
                   {PlaceHolderImages.map((image) => (
                     <DialogTrigger key={image.id} asChild>
                       <div className="relative aspect-video cursor-pointer group" onClick={() => handlePlaceholderSelect(image)}>
-                        <Image src={image.imageUrl} alt={image.description} data-ai-hint={image.imageHint} layout="fill" objectFit="cover" className="rounded-md" />
+                        <Image src={image.imageUrl} alt={image.description} data-ai-hint={image.imageHint} fill sizes="(max-width: 625px) 50vw, 300px" className="rounded-md object-cover" />
                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                             <p className="text-white text-center text-sm p-2">{image.description}</p>
                         </div>

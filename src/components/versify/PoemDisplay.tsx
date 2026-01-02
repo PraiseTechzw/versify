@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -145,7 +146,7 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
   return (
     <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 h-full animate-in fade-in duration-500">
       <div className="relative lg:w-1/3 aspect-square lg:aspect-auto rounded-xl overflow-hidden shadow-md">
-        <Image src={image} alt="Poem inspiration" layout="fill" objectFit="cover" />
+        <Image src={image} alt="Poem inspiration" fill sizes="(max-width: 1024px) 100vw, 33vw" className="object-cover" />
       </div>
 
       <div className="lg:w-2/3 flex flex-col min-w-0">

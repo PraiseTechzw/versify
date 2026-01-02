@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -110,7 +111,7 @@ export default function VersifyClient() {
                 {imageDataUrl ? (
                   <>
                   <div className='relative w-full max-w-xs aspect-square mb-4 rounded-lg overflow-hidden shadow-lg'>
-                     <Image src={imageDataUrl} alt="Ready for poem" className="object-cover" fill/>
+                     <Image src={imageDataUrl} alt="Ready for poem" className="object-cover" fill sizes="(max-width: 768px) 100vw, 33vw"/>
                   </div>
                   <h2 className="text-xl font-headline font-semibold text-foreground">Image Ready</h2>
                   <p className="mt-2">Adjust your creative controls and generate a poem.</p>
