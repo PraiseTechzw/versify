@@ -139,8 +139,8 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
         <Image src={image} alt="Poem inspiration" layout="fill" objectFit="cover" />
       </div>
 
-      <div className="lg:w-2/3 flex flex-col">
-        <div className="flex-shrink-0">
+      <div className="lg:w-2/3 flex flex-col min-w-0">
+        <div className="flex-shrink-0 pr-4">
           <div className="flex items-start justify-between gap-4">
               <h2 className="text-3xl font-bold font-headline text-primary flex-1">{title}</h2>
               <div className='flex'>
@@ -168,7 +168,7 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
           </div>
         </div>
 
-        <div className="flex-grow min-h-0 overflow-y-auto pr-2">
+        <div className="flex-grow min-h-0 overflow-y-auto pr-4">
           {isEditing ? (
             <Textarea 
                 value={poem} 
@@ -195,7 +195,7 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
           )}
         </div>
         
-        <div className="flex-shrink-0 flex items-center gap-2 pt-4 mt-auto">
+        <div className="flex-shrink-0 flex flex-wrap items-center gap-2 pt-4 mt-auto pr-4">
           <Button onClick={handleSave}><Save className="mr-2 h-4 w-4"/> Save to Library</Button>
           <Button variant="outline" onClick={handleCopy}><Clipboard className="mr-2 h-4 w-4"/> Copy</Button>
           <Button variant="outline" onClick={handleShare}><Share2 className="mr-2 h-4 w-4"/> Share</Button>
