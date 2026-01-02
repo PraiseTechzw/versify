@@ -19,6 +19,7 @@ interface LibraryContextType {
     library: Poem[];
     addPoemToLibrary: (poem: Omit<Poem, 'id'>) => void;
     getPoemById: (id: string) => Poem | undefined;
+    deletePoem: (id: string) => void;
     clearLibrary: () => void;
 }
 
@@ -36,12 +37,16 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
         return library.find(p => p.id === id);
     }
 
+    const deletePoem = (id: string) => {
+        setLibrary(prevLibrary => prevLibrary.filter(p => p.id !== id));
+    }
+
     const clearLibrary = () => {
         setLibrary([]);
     }
 
     return (
-        <LibraryContext.Provider value={{ library, addPoemToLibrary, getPoemById, clearLibrary }}>
+        <LibraryContext.Provider value={{ library, addPoemToLibrary, getPoemById, deletePoem, clearLibrary }}>
             {children}
         </LibraryContext.Provider>
     );

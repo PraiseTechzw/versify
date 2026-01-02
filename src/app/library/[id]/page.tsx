@@ -10,12 +10,26 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { useToast } from '@/hooks/use-toast';
 
 export default function PoemDetailPage() {
     const { id } = useParams();
-    const { getPoemById } = useLibrary();
+    const { getPoemById, deletePoem } = useLibrary();
     const router = useRouter();
     const [poem, setPoem] = useState<Poem | null>(null);
+    const { toast } = useToast();
+
 
     useEffect(() => {
         if (id) {
@@ -23,11 +37,21 @@ export default function PoemDetailPage() {
             if (foundPoem) {
                 setPoem(foundPoem);
             } else {
-                // Handle poem not found, maybe redirect or show a message
                 router.push('/library');
             }
         }
     }, [id, getPoemById, router]);
+
+    const handleDelete = () => {
+        if (poem) {
+            deletePoem(poem.id);
+            toast({
+                title: "Poem Deleted",
+                description: `"${poem.title}" has been removed from your library.`,
+            })
+            router.push('/library');
+        }
+    }
 
     if (!poem) {
         return (
@@ -62,7 +86,24 @@ export default function PoemDetailPage() {
                                     </p>
                                     <div className="flex items-center gap-2 pt-6 mt-auto">
                                       <Button disabled><Edit className="mr-2 h-4 w-4" /> Edit</Button>
-                                      <Button variant="outline" disabled><Trash2 className="mr-2 h-4 w-4" /> Delete</Button>
+                                      <AlertDialog>
+                                          <AlertDialogTrigger asChild>
+                                            <Button variant="outline"><Trash2 className="mr-2 h-4 w-4" /> Delete</Button>
+                                          </AlertDialogTrigger>
+                                          <AlertDialogContent>
+                                              <AlertDialogHeader>
+                                                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                  <AlertDialogDescription>
+                                                      This action cannot be undone. This will permanently delete the poem
+                                                      "{poem.title}" from your library.
+                                                  </AlertDialogDescription>
+                                              </AlertDialogHeader>
+                                              <AlertDialogFooter>
+                                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                  <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                                              </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                      </AlertDialog>
                                     </div>
                                 </CardContent>
                             </div>
