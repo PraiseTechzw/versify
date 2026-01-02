@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import { Library, Leaf, User, LogIn, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,10 +12,18 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import Link from 'next/link';
-import { useUser, logout } from '@/firebase';
+import { useUser, logout, useAuth } from '@/firebase';
+import { useRouter } from 'next/navigation';
 
 export default function Header() {
   const { user } = useUser();
+  const auth = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout(auth);
+    router.push('/');
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -66,7 +74,7 @@ export default function Header() {
                   </DropdownMenuItem>
                 </Link>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => logout()}>Log out</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (

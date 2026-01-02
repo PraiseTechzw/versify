@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { useUser, logout, updateProfile, type User } from '@/firebase';
+import { useUser, logout, updateProfile, type User, useAuth, useFirestore } from '@/firebase';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -22,6 +22,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const poetryStyles = ["Free Verse", "Haiku", "Sonnet", "Limerick", "Ballad"];
 
@@ -29,6 +30,8 @@ export default function SettingsPage() {
     const { user, loading } = useUser();
     const { toast } = useToast();
     const router = useRouter();
+    const auth = useAuth();
+    const firestore = useFirestore();
 
     const [displayName, setDisplayName] = useState('');
     const [defaultStyle, setDefaultStyle] = useState('Free Verse');
@@ -44,7 +47,7 @@ export default function SettingsPage() {
     const handleSaveChanges = async () => {
         if (!user) return;
         try {
-            await updateProfile(user, { displayName });
+            await updateProfile(firestore, user, { displayName });
             // In a real app, you would also save other preferences to Firestore.
             toast({
                 title: "Settings Saved",
@@ -59,9 +62,14 @@ export default function SettingsPage() {
         }
     }
     
+    const handleLogout = async () => {
+        await logout(auth);
+        router.push('/');
+    }
+    
     const handleDeleteAccount = async () => {
         // In a real app this would also delete user data from Firestore
-        await logout();
+        await logout(auth);
         toast({
             title: "Account Deleted",
             description: "We're sorry to see you go.",
@@ -137,7 +145,7 @@ export default function SettingsPage() {
                             <CardHeader>
                                 <CardTitle className='font-headline'>Notifications</CardTitle>
                                 <CardDescription>Manage how you receive updates and inspiration.</CardDescription>
-                            </CardHeader>
+                            </Header>
                             <CardContent className="space-y-4">
                                 <div className="flex items-center justify-between p-3 border rounded-md">
                                     <div>

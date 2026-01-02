@@ -5,7 +5,6 @@
 // packages, and to use the connect... Emulator functions.
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-
 import { firebaseConfig } from './firebase-config';
 import { initializeApp, getApp, getApps } from 'firebase/app';
 

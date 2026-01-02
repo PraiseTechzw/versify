@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Leaf, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { signup } from '@/firebase';
+import { signup, useAuth, useFirestore } from '@/firebase';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -18,14 +18,17 @@ export default function SignupPage() {
   const [displayName, setDisplayName] = useState('');
   const router = useRouter();
   const { toast } = useToast();
+  const auth = useAuth();
+  const firestore = useFirestore();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await signup(email, password, displayName);
+      await signup(auth, firestore, email, password, displayName);
       router.push('/');
       toast({ title: 'Signup Successful!', description: 'Welcome to Versify.' });
     } catch (error) {
+      console.error(error);
       toast({
         variant: 'destructive',
         title: 'Signup Failed',

@@ -10,18 +10,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Leaf, LogIn } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { login, loginWithGoogle } from '@/firebase';
+import { login, loginWithGoogle, useAuth, useFirestore } from '@/firebase';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
   const { toast } = useToast();
+  const auth = useAuth();
+  const firestore = useFirestore();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(email, password);
+      await login(auth, email, password);
       router.push('/');
       toast({ title: 'Login Successful!' });
     } catch (error) {
@@ -35,7 +37,7 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     try {
-      await loginWithGoogle();
+      await loginWithGoogle(auth, firestore);
       router.push('/');
       toast({ title: 'Login Successful!' });
     } catch (error) {

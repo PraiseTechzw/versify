@@ -9,17 +9,18 @@ import {
   signInWithEmailAndPassword,
   signOut,
   updateProfile as updateFirebaseProfile,
+  type Auth,
 } from 'firebase/auth';
 import { useEffect, useState } from 'react';
-
-import { auth, firestore } from '@/firebase';
-import { setDoc, doc } from 'firebase/firestore';
+import { useAuth } from '@/firebase';
+import { setDoc, doc, type Firestore } from 'firebase/firestore';
 
 export type User = FirebaseUser;
 
 export const useUser = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const auth = useAuth();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -28,16 +29,16 @@ export const useUser = () => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [auth]);
 
   return { user, loading };
 };
 
-export const login = async (email: string, pass: string) => {
+export const login = async (auth: Auth, email: string, pass: string) => {
   await signInWithEmailAndPassword(auth, email, pass);
 };
 
-export const loginWithGoogle = async () => {
+export const loginWithGoogle = async (auth: Auth, firestore: Firestore) => {
   const provider = new GoogleAuthProvider();
   const userCredential = await signInWithPopup(auth, provider);
   const user = userCredential.user;
@@ -51,7 +52,7 @@ export const loginWithGoogle = async () => {
   }, { merge: true });
 };
 
-export const signup = async (email: string, pass: string, displayName: string) => {
+export const signup = async (auth: Auth, firestore: Firestore, email: string, pass: string, displayName: string) => {
   const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
   const user = userCredential.user;
   
@@ -67,11 +68,11 @@ export const signup = async (email: string, pass: string, displayName: string) =
   });
 };
 
-export const logout = async () => {
+export const logout = async (auth: Auth) => {
   await signOut(auth);
 };
 
-export const updateProfile = async (user: User, profile: { displayName?: string, photoURL?: string }) => {
+export const updateProfile = async (firestore: Firestore, user: User, profile: { displayName?: string, photoURL?: string }) => {
     await updateFirebaseProfile(user, profile);
 
     const userRef = doc(firestore, 'users', user.uid);
