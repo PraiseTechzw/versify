@@ -145,7 +145,7 @@ export default function SettingsPage() {
                             <CardHeader>
                                 <CardTitle className='font-headline'>Notifications</CardTitle>
                                 <CardDescription>Manage how you receive updates and inspiration.</CardDescription>
-                            </Header>
+                            </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="flex items-center justify-between p-3 border rounded-md">
                                     <div>
