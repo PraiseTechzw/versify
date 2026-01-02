@@ -186,15 +186,15 @@ export default function VersifyClient() {
   }
 
   const handleImageUpload = (url: string) => {
-    console.log("handleImageUpload called with:", url)
+    console.log("VersifyClient: handleImageUpload called with:", url)
     setImageDataUrl(url)
     if (!url) {
       setPoemResult(null)
       setCurrentStep(1)
-      console.log("Image cleared, step set to 1")
+      console.log("VersifyClient: Image cleared, step set to 1")
     } else {
       setCurrentStep(2)
-      console.log("Image uploaded, step set to 2")
+      console.log("VersifyClient: Image uploaded, step set to 2")
     }
   }
 
