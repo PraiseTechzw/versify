@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -19,6 +20,15 @@ import type { CreativeControlsState } from './VersifyClient';
 import { Badge } from '../ui/badge';
 import { useUser } from '@/firebase';
 
+/**
+ * @interface PoemDisplayProps
+ * Props for the PoemDisplay component.
+ * @property {GeneratePoemFromImageOutput} poemResult - The result from the poem generation flow.
+ * @property {string} image - The data URL of the image used for generation.
+ * @property {() => void} onRegenerate - Callback to trigger a regeneration of the poem.
+ * @property {boolean} isRegenerating - Flag indicating if regeneration is in progress.
+ * @property {CreativeControlsState} controls - The creative controls state used for generation.
+ */
 interface PoemDisplayProps {
   poemResult: GeneratePoemFromImageOutput;
   image: string;
@@ -27,6 +37,13 @@ interface PoemDisplayProps {
   controls: CreativeControlsState;
 }
 
+/**
+ * A component to display the generated poem and provide actions for interacting with it.
+ * It allows editing, regenerating, viewing AI insights, and saving the poem.
+ *
+ * @param {PoemDisplayProps} props - The props for the component.
+ * @returns {JSX.Element} The rendered PoemDisplay component.
+ */
 export default function PoemDisplay({ poemResult, image, onRegenerate, isRegenerating, controls }: PoemDisplayProps) {
   const [title, setTitle] = useState(poemResult.title);
   const [poem, setPoem] = useState(poemResult.poem);
@@ -91,7 +108,7 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
     a.href = url;
     a.download = `${title.toLowerCase().replace(/\s/g, '_')}.txt`;
     document.body.appendChild(a);
-    a.click();
+a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     toast({ title: "Poem downloaded." });

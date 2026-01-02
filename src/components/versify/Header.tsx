@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Library, Leaf, User, LogIn, Settings } from 'lucide-react';
@@ -15,6 +16,12 @@ import Link from 'next/link';
 import { useUser, logout, useAuth } from '@/firebase';
 import { useRouter } from 'next/navigation';
 
+/**
+ * The main header component for the application.
+ * It displays the application logo, navigation links, and user authentication status.
+ *
+ * @returns {JSX.Element} The rendered Header component.
+ */
 export default function Header() {
   const { user } = useUser();
   const auth = useAuth();

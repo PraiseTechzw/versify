@@ -1,5 +1,12 @@
+
 import { Skeleton } from "@/components/ui/skeleton";
 
+/**
+ * A skeleton loader component that mimics the layout of the PoemDisplay.
+ * It's shown while the first poem is being generated to provide a good user experience.
+ *
+ * @returns {JSX.Element} The rendered PoemSkeleton component.
+ */
 export default function PoemSkeleton() {
   return (
     <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 h-full animate-pulse">

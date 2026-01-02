@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -15,6 +16,10 @@ import Image from 'next/image';
 import { useLibrary } from '@/context/LibraryContext';
 import { useUser } from '@/firebase';
 
+/**
+ * @type {CreativeControlsState}
+ * Defines the state for the various creative controls available for poem generation.
+ */
 export type CreativeControlsState = {
   poetryStyle: string;
   tone: string;
@@ -24,6 +29,9 @@ export type CreativeControlsState = {
   keywordEmphasis: string;
 };
 
+/**
+ * The default state for the creative controls.
+ */
 const defaultControls: CreativeControlsState = {
   poetryStyle: 'Free Verse',
   tone: 'Neutral',
@@ -33,6 +41,14 @@ const defaultControls: CreativeControlsState = {
   keywordEmphasis: '',
 };
 
+/**
+ * The main client component for the Versify application.
+ * It orchestrates the main user flow: uploading an image, setting creative controls,
+ * generating a poem, and displaying the result. It also handles session management
+ * to persist the user's work across page loads.
+ *
+ * @returns {JSX.Element} The rendered VersifyClient component.
+ */
 export default function VersifyClient() {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [poemResult, setPoemResult] = useState<GeneratePoemFromImageOutput | null>(null);

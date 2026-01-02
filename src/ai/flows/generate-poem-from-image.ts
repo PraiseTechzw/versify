@@ -1,16 +1,23 @@
+
 'use server';
 
 /**
  * @fileOverview Generates a poem based on the content of an image.
  *
- * - generatePoemFromImage - A function that generates a poem from an image.
- * - GeneratePoemFromImageInput - The input type for the generatePoemFromImage function.
- * - GeneratePoemFromImageOutput - The return type for the generatePoemFromImage function.
+ * This file defines the Genkit flow for generating a poem and its title from an image.
+ * It includes schema definitions for the input and output, the prompt configuration, and the flow itself.
+ *
+ * - `generatePoemFromImage`: The main function exported to be used in the application.
+ * - `GeneratePoemFromImageInput`: The Zod schema for the input parameters.
+ * - `GeneratePoemFromImageOutput`: The Zod schema for the output of the generation.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
+/**
+ * Defines the schema for the input required to generate a poem from an image.
+ */
 const GeneratePoemFromImageInputSchema = z.object({
   photoDataUri: z
     .string()
@@ -26,14 +33,24 @@ const GeneratePoemFromImageInputSchema = z.object({
 });
 export type GeneratePoemFromImageInput = z.infer<typeof GeneratePoemFromImageInputSchema>;
 
+/**
+ * Defines the schema for the output produced after generating a poem from an image.
+ */
 const GeneratePoemFromImageOutputSchema = z.object({
   title: z.string().describe('The title of the poem.'),
   poem: z.string().describe('The generated poem.'),
   emotions: z.array(z.string()).optional().describe('The emotions detected in the image.'),
   visualElements: z.array(z.string()).optional().describe('The visual elements detected in the image.'),
 });
-export type GeneratePoemFromImageOutput = z.infer<typeof GeneratePoemFromImageOutputSchema>;
+export type GeneratePoemFromImageOutput = z;
 
+/**
+ * Generates a poem based on an image and a set of creative controls.
+ * This is a wrapper around the `generatePoemFromImageFlow`.
+ *
+ * @param {GeneratePoemFromImageInput} input - The input data for the poem generation, including the image and creative controls.
+ * @returns {Promise<GeneratePoemFromImageOutput>} A promise that resolves to the generated poem, title, and analysis.
+ */
 export async function generatePoemFromImage(input: GeneratePoemFromImageInput): Promise<GeneratePoemFromImageOutput> {
   return generatePoemFromImageFlow(input);
 }

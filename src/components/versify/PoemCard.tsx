@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import Image from 'next/image';
@@ -23,10 +24,23 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
+/**
+ * @interface PoemCardProps
+ * Props for the PoemCard component.
+ * @property {Poem} poem - The poem data to display.
+ */
 interface PoemCardProps {
     poem: Poem;
 }
 
+/**
+ * A card component to display a summary of a poem in the library.
+ * It shows the poem's image, title, and a snippet of its content.
+ * It also provides actions like moving to a collection or deleting the poem.
+ *
+ * @param {PoemCardProps} props - The props for the component.
+ * @returns {JSX.Element} The rendered PoemCard component.
+ */
 export default function PoemCard({ poem }: PoemCardProps) {
     const { updatePoemCollection, deletePoem } = useLibrary();
     const { toast } = useToast();

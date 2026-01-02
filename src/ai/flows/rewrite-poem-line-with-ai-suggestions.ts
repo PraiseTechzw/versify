@@ -1,15 +1,22 @@
+
 'use server';
 /**
  * @fileOverview AI flow for rewriting a specific line of a poem with AI suggestions.
  *
- * - rewritePoemLineWithAISuggestions - A function that accepts a poem and a line number and returns AI suggestions for rewriting that line.
- * - RewritePoemLineWithAISuggestionsInput - The input type for the rewritePoemLineWithAISuggestions function.
- * - RewritePoemLineWithAISuggestionsOutput - The return type for the rewritePoemLineWithAISuggestions function.
+ * This file defines a Genkit flow that takes a poem and a line number, and returns
+ * several creative alternatives for that line.
+ *
+ * - `rewritePoemLineWithAISuggestions`: The main exported function.
+ * - `RewritePoemLineWithAISuggestionsInput`: The Zod schema for the input.
+ * - `RewritePoemLineWithAISuggestionsOutput`: The Zod schema for the output.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
+/**
+ * Defines the schema for the input required to rewrite a poem line.
+ */
 const RewritePoemLineWithAISuggestionsInputSchema = z.object({
   poem: z.string().describe('The complete poem as a single string.'),
   lineNumber: z
@@ -22,6 +29,9 @@ export type RewritePoemLineWithAISuggestionsInput = z.infer<
   typeof RewritePoemLineWithAISuggestionsInputSchema
 >;
 
+/**
+ * Defines the schema for the output containing the rewrite suggestions.
+ */
 const RewritePoemLineWithAISuggestionsOutputSchema = z.object({
   suggestions: z
     .array(z.string())
@@ -31,6 +41,12 @@ export type RewritePoemLineWithAISuggestionsOutput = z.infer<
   typeof RewritePoemLineWithAISuggestionsOutputSchema
 >;
 
+/**
+ * Rewrites a specific line of a poem with AI-generated suggestions.
+ *
+ * @param {RewritePoemLineWithAISuggestionsInput} input - The input containing the poem and the line number to rewrite.
+ * @returns {Promise<RewritePoemLineWithAISuggestionsOutput>} A promise that resolves to an array of suggestions.
+ */
 export async function rewritePoemLineWithAISuggestions(
   input: RewritePoemLineWithAISuggestionsInput
 ): Promise<RewritePoemLineWithAISuggestionsOutput> {

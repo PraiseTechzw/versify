@@ -1,3 +1,4 @@
+
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
@@ -16,6 +17,14 @@ import { Button } from "@/components/ui/button"
 import type { CreativeControlsState } from "./VersifyClient"
 import { Wand2 } from "lucide-react"
 
+/**
+ * @interface CreativeControlsProps
+ * Props for the CreativeControls component.
+ * @property {CreativeControlsState} controls - The current state of the creative controls.
+ * @property {React.Dispatch<React.SetStateAction<CreativeControlsState>>} setControls - Function to update the controls' state.
+ * @property {() => void} onGenerate - Callback function to trigger poem generation.
+ * @property {boolean} isLoading - Flag indicating if poem generation is in progress.
+ */
 interface CreativeControlsProps {
     controls: CreativeControlsState
     setControls: React.Dispatch<React.SetStateAction<CreativeControlsState>>
@@ -28,6 +37,12 @@ const tones = ["Neutral", "Joyful", "Melancholy", "Reflective", "Dramatic", "Hum
 const lengths = { "Short": 0, "Medium": 1, "Long": 2 };
 const narratives = ["Descriptive", "Abstract", "Storytelling", "First-person"];
 
+/**
+ * A component that provides UI controls for adjusting the creative direction of the AI poem generation.
+ *
+ * @param {CreativeControlsProps} props - The props for the component.
+ * @returns {JSX.Element} The rendered CreativeControls component.
+ */
 export default function CreativeControls({ controls, setControls, onGenerate, isLoading }: CreativeControlsProps) {
 
     const handleValueChange = (key: keyof CreativeControlsState) => (value: string | number | string[]) => {

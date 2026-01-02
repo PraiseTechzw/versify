@@ -1,12 +1,27 @@
+
 import { Loader2 } from "lucide-react";
 import type { PoemInspirationInsightsOutput } from "@/ai/flows/provide-poem-inspiration-insights";
 import { Badge } from "../ui/badge";
 
+/**
+ * @interface AiInsightsProps
+ * Props for the AiInsights component.
+ * @property {PoemInspirationInsightsOutput | null} insights - The AI-generated insights to display.
+ * @property {boolean} isLoading - Flag indicating if insights are currently being loaded.
+ */
 interface AiInsightsProps {
     insights: PoemInspirationInsightsOutput | null;
     isLoading: boolean;
 }
 
+/**
+ * A component to display AI-generated insights about a poem's inspiration.
+ * It shows the overall mood and a line-by-line breakdown of the visual and emotional elements
+ * from the source image that inspired the poem.
+ *
+ * @param {AiInsightsProps} props - The props for the component.
+ * @returns {JSX.Element} The rendered AiInsights component.
+ */
 export default function AiInsights({ insights, isLoading }: AiInsightsProps) {
     if (isLoading) {
         return (

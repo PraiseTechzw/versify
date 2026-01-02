@@ -1,9 +1,10 @@
 
+
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { Camera, Image as ImageIcon, UploadCloud, X, Video, CameraOff } from 'lucide-react';
+import { Camera, Image as ImageIcon, UploadCloud, X, CameraOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,11 +21,24 @@ import {
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { useToast } from '@/hooks/use-toast';
 
+/**
+ * @interface ImageUploaderProps
+ * Props for the ImageUploader component.
+ * @property {(dataUrl: string) => void} onImageUpload - Callback function when an image is uploaded or selected.
+ * @property {string | null} currentImage - The data URL of the currently displayed image.
+ */
 interface ImageUploaderProps {
   onImageUpload: (dataUrl: string) => void;
   currentImage: string | null;
 }
 
+/**
+ * A component for uploading, capturing, or selecting an image for poem generation.
+ * Supports drag-and-drop, file input, camera capture, and a gallery of preset images.
+ *
+ * @param {ImageUploaderProps} props - The props for the component.
+ * @returns {JSX.Element} The rendered ImageUploader component.
+ */
 export default function ImageUploader({ onImageUpload, currentImage }: ImageUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);

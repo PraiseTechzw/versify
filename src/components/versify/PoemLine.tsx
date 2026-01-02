@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -7,6 +8,14 @@ import { Loader2, Wand2 } from "lucide-react";
 import { rewritePoemLineWithAISuggestions } from '@/ai/flows/rewrite-poem-line-with-ai-suggestions';
 import { useToast } from '@/hooks/use-toast';
 
+/**
+ * @interface PoemLineProps
+ * Props for the PoemLine component.
+ * @property {number} lineNumber - The index of the line in the poem.
+ * @property {string} lineText - The text content of the line.
+ * @property {string} fullPoem - The entire text of the poem.
+ * @property {(lineNumber: number, newText: string) => void} onRewrite - Callback function when a line is rewritten.
+ */
 interface PoemLineProps {
     lineNumber: number;
     lineText: string;
@@ -14,6 +23,13 @@ interface PoemLineProps {
     onRewrite: (lineNumber: number, newText: string) => void;
 }
 
+/**
+ * A component that displays a single line of a poem.
+ * It includes a button that, on hover, allows the user to get AI-powered rewrite suggestions for that line.
+ *
+ * @param {PoemLineProps} props - The props for the component.
+ * @returns {JSX.Element} The rendered PoemLine component.
+ */
 export default function PoemLine({ lineNumber, lineText, fullPoem, onRewrite }: PoemLineProps) {
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);

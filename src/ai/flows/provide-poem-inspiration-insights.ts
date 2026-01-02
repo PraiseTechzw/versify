@@ -1,15 +1,21 @@
+
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow that provides insights into the AI's creative process behind a generated poem.
  *
- * - providePoemInspirationInsights -  The function that orchestrates the process of analyzing an image and poem to provide insights.
- * - PoemInspirationInsightsInput - The input type for the providePoemInspirationInsights function.
- * - PoemInspirationInsightsOutput - The output type for the providePoemInspirationInsights function.
+ * This flow analyzes an image and a poem to explain the visual and emotional elements that inspired each line.
+ *
+ * - `providePoemInspirationInsights`: The main exported function.
+ * - `PoemInspirationInsightsInput`: The Zod schema for the input.
+ * - `PoemInspirationInsightsOutput`: The Zod schema for the output.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
+/**
+ * Defines the schema for the input required to get inspiration insights.
+ */
 const PoemInspirationInsightsInputSchema = z.object({
   photoDataUri: z
     .string()
@@ -20,6 +26,9 @@ const PoemInspirationInsightsInputSchema = z.object({
 });
 export type PoemInspirationInsightsInput = z.infer<typeof PoemInspirationInsightsInputSchema>;
 
+/**
+ * Defines the schema for the output containing the inspiration insights.
+ */
 const PoemInspirationInsightsOutputSchema = z.object({
   insights: z.array(
     z.object({
@@ -32,6 +41,13 @@ const PoemInspirationInsightsOutputSchema = z.object({
 });
 export type PoemInspirationInsightsOutput = z.infer<typeof PoemInspirationInsightsOutputSchema>;
 
+/**
+ * Provides AI-generated insights into the creative inspiration behind a poem.
+ * It analyzes an image and poem to explain the visual and emotional drivers for each line.
+ *
+ * @param {PoemInspirationInsightsInput} input - The input containing the image data URI and the poem text.
+ * @returns {Promise<PoemInspirationInsightsOutput>} A promise that resolves to the detailed insights.
+ */
 export async function providePoemInspirationInsights(input: PoemInspirationInsightsInput): Promise<PoemInspirationInsightsOutput> {
   return providePoemInspirationInsightsFlow(input);
 }
