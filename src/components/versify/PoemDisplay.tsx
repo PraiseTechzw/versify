@@ -12,6 +12,9 @@ import type { GeneratePoemFromImageOutput } from '@/ai/flows/generate-poem-from-
 import type { PoemInspirationInsightsOutput } from '@/ai/flows/provide-poem-inspiration-insights';
 import AiInsights from './AiInsights';
 import PoemLine from './PoemLine';
+import { useLibrary } from '@/context/LibraryContext';
+import { useAuth } from '@/context/AuthContext';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 interface PoemDisplayProps {
   poemResult: GeneratePoemFromImageOutput;
@@ -27,6 +30,9 @@ export default function PoemDisplay({ poemResult, image }: PoemDisplayProps) {
   const [insights, setInsights] = useState<PoemInspirationInsightsOutput | null>(null);
   const [isInsightsLoading, setIsInsightsLoading] = useState(false);
   const { toast } = useToast();
+  const { addPoemToLibrary } = useLibrary();
+  const { user } = useAuth();
+
 
   useEffect(() => {
     setTitle(poemResult.title);
@@ -103,8 +109,18 @@ export default function PoemDisplay({ poemResult, image }: PoemDisplayProps) {
   }
   
   const handleSave = () => {
-    // Mock save functionality
-    toast({ title: "Saved to your library!", description: "This is a mock action. Backend is not connected." });
+    if (!user) {
+        toast({ title: "Please log in to save poems.", variant: "destructive" });
+        return;
+    }
+    const imagePlaceholder = PlaceHolderImages.find(p => p.imageUrl === image) || {
+        id: `custom-${Date.now()}`,
+        imageUrl: image,
+        description: 'Custom uploaded image',
+        imageHint: ''
+    };
+    addPoemToLibrary({ title, poem, image: imagePlaceholder });
+    toast({ title: "Saved to your library!" });
   }
 
   return (

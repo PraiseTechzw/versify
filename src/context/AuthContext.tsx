@@ -4,6 +4,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { useLibrary } from './LibraryContext';
 
 interface User {
   uid: string;
@@ -24,6 +25,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const { clearLibrary } = useLibrary();
   
   // In a real app, you'd check for a token in localStorage or a cookie
   // For this mock, we'll just start logged out.
@@ -72,6 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     // Mock logout
     setUser(null);
+    clearLibrary();
   };
 
   return (
