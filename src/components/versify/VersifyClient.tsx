@@ -229,41 +229,46 @@ export default function VersifyClient() {
 
   // Sidebar content component
   const SidebarContent = useCallback(() => (
-    <div className="flex flex-col h-full w-full bg-card">
+    <div className="flex flex-col h-full w-full bg-gradient-to-br from-card via-card to-card/95">
       {/* Sidebar Header - Fixed */}
-      <div className="p-6 border-b border-border flex-shrink-0 bg-gradient-to-br from-primary/5 to-primary/10">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="bg-primary/20 p-3 rounded-xl shadow-lg">
+      <div className="p-6 border-b border-border/50 flex-shrink-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent backdrop-blur-sm">
+        <div className="flex items-center gap-3 mb-4 group">
+          <div className="bg-gradient-to-br from-primary/30 to-primary/10 p-3 rounded-2xl shadow-lg border border-primary/20 group-hover:scale-105 transition-transform duration-300">
             <VersifyLogo size={48} theme="auto" className="text-primary" />
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-primary font-headline">Versify</h1>
-            <p className="text-xs text-muted-foreground">AI Poetry Generator</p>
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent font-headline">
+              Versify
+            </h1>
+            <p className="text-xs text-muted-foreground/80">AI Poetry Generator</p>
           </div>
         </div>
-        <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-lg border border-primary/20 mb-3">
-          <Sparkles className="h-4 w-4 text-primary" />
+        
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary/15 to-primary/5 rounded-xl border border-primary/20 shadow-sm mb-4 backdrop-blur-sm group hover:shadow-md transition-all duration-300">
+          <Sparkles className="h-4 w-4 text-primary animate-pulse" />
           <p className="text-xs text-foreground font-medium">Transform images into poetry</p>
         </div>
 
         {/* Trial Status for Non-Logged-In Users */}
         {!isUserLoggedIn && (
           <div
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg border mb-4 ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border mb-4 transition-all duration-300 hover:shadow-md ${
               trialUsed
-                ? "bg-destructive/10 border-destructive/20"
-                : "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800"
+                ? "bg-gradient-to-r from-destructive/15 to-destructive/5 border-destructive/30 shadow-destructive/5"
+                : "bg-gradient-to-r from-green-100/50 to-green-50/30 dark:from-green-950/30 dark:to-green-900/20 border-green-300/50 dark:border-green-800/50 shadow-green-500/5"
             }`}
           >
             {trialUsed ? (
               <>
-                <X className="h-4 w-4 text-destructive" />
-                <p className="text-xs text-destructive font-medium">Trial used - Sign up for more!</p>
+                <X className="h-4 w-4 text-destructive animate-in zoom-in-50 duration-300" />
+                <p className="text-xs text-destructive font-semibold">Trial used - Sign up for more!</p>
               </>
             ) : (
               <>
-                <Sparkles className="h-4 w-4 text-green-600" />
-                <p className="text-xs text-green-600 dark:text-green-400 font-medium">Free trial: 1 poem remaining</p>
+                <Sparkles className="h-4 w-4 text-green-600 dark:text-green-400 animate-pulse" />
+                <p className="text-xs text-green-700 dark:text-green-300 font-semibold">
+                  Free trial: 1 poem remaining
+                </p>
               </>
             )}
           </div>
@@ -274,33 +279,39 @@ export default function VersifyClient() {
           <button
             type="button"
             onClick={() => setCurrentStep(1)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+            className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-300 hover:scale-105 ${
               currentStep === 1
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
+                ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25"
+                : "bg-muted/80 text-muted-foreground hover:bg-muted"
             }`}
             aria-label="Go to step 1: Upload"
           >
-            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-background/20 text-xs font-bold">
+            <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold transition-all duration-300 ${
+              currentStep === 1 ? "bg-background/20 ring-2 ring-background/30" : "bg-background/10"
+            }`}>
               1
             </span>
             Upload
           </button>
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          <ChevronRight className={`h-4 w-4 transition-colors duration-300 ${
+            currentStep === 2 ? "text-primary" : "text-muted-foreground"
+          }`} />
           <button
             type="button"
             onClick={() => imageDataUrl && setCurrentStep(2)}
             disabled={!imageDataUrl}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+            className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-300 ${
               currentStep === 2
-                ? "bg-primary text-primary-foreground shadow-sm"
+                ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25 hover:scale-105"
                 : imageDataUrl
-                  ? "bg-muted text-muted-foreground hover:bg-muted/80"
+                  ? "bg-muted/80 text-muted-foreground hover:bg-muted hover:scale-105"
                   : "bg-muted/50 text-muted-foreground/50 cursor-not-allowed"
             }`}
             aria-label="Go to step 2: Customize"
           >
-            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-background/20 text-xs font-bold">
+            <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold transition-all duration-300 ${
+              currentStep === 2 ? "bg-background/20 ring-2 ring-background/30" : "bg-background/10"
+            }`}>
               2
             </span>
             Customize
@@ -310,36 +321,42 @@ export default function VersifyClient() {
 
       {/* Sidebar Content - Scrollable */}
       <div 
-        className="flex-1 overflow-y-auto overflow-x-hidden p-6"
+        className="flex-1 overflow-y-auto overflow-x-hidden p-6 bg-gradient-to-b from-transparent to-muted/5"
         style={{
           scrollbarWidth: 'thin',
-          scrollbarColor: 'hsl(var(--border)) transparent'
+          scrollbarColor: 'hsl(var(--primary) / 0.3) transparent'
         }}
       >
         {currentStep === 1 ? (
-          <div className="space-y-4 animate-in fade-in-0 slide-in-from-left-4 duration-300">
-            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">Upload Image</h3>
+          <div className="space-y-4 animate-in fade-in-0 slide-in-from-left-8 duration-500">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="h-8 w-1 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
+              <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Upload Image</h3>
+            </div>
             <ImageUploader onImageUpload={handleImageUpload} currentImage={imageDataUrl} />
             {imageDataUrl && (
               <Button
                 onClick={() => setCurrentStep(2)}
-                className="w-full mt-4"
+                className="w-full mt-6 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:scale-[1.02] bg-gradient-to-r from-primary to-primary/90"
                 size="lg"
               >
                 Next: Customize
-                <ChevronRight className="ml-2 h-4 w-4" />
+                <ChevronRight className="ml-2 h-5 w-5 animate-pulse" />
               </Button>
             )}
           </div>
         ) : (
-          <div className="space-y-4 animate-in fade-in-0 slide-in-from-right-4 duration-300">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">Customize & Generate</h3>
+          <div className="space-y-4 animate-in fade-in-0 slide-in-from-right-8 duration-500">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-1 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
+                <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Customize & Generate</h3>
+              </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setCurrentStep(1)}
-                className="h-8 px-2"
+                className="h-8 px-3 hover:bg-muted/80 transition-all duration-300"
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
                 Back
@@ -347,17 +364,22 @@ export default function VersifyClient() {
             </div>
 
             {imageDataUrl && (
-              <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-border shadow-sm mb-4 group">
+              <div className="relative w-full aspect-video rounded-xl overflow-hidden border-2 border-primary/20 shadow-xl mb-6 group hover:border-primary/40 transition-all duration-300">
                 <Image
                   src={imageDataUrl}
                   alt="Selected image"
-                  className="object-cover"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
                   fill
                   sizes="400px"
                   priority
                 />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Button variant="secondary" size="sm" onClick={() => setCurrentStep(1)}>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    onClick={() => setCurrentStep(1)}
+                    className="shadow-lg backdrop-blur-sm hover:scale-110 transition-transform duration-300"
+                  >
                     Change Image
                   </Button>
                 </div>
@@ -365,22 +387,31 @@ export default function VersifyClient() {
             )}
 
             {!isUserLoggedIn && trialUsed ? (
-              <div className="text-center py-8 space-y-4">
-                <div className="bg-gradient-to-br from-primary/20 to-primary/5 p-6 rounded-xl">
-                  <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">Trial Complete!</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
+              <div className="text-center py-8 space-y-4 animate-in fade-in-0 zoom-in-95 duration-500">
+                <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-transparent p-8 rounded-2xl border border-primary/20 shadow-xl">
+                  <div className="bg-gradient-to-br from-primary/30 to-primary/10 p-4 rounded-full mb-4 mx-auto w-fit">
+                    <Sparkles className="w-12 h-12 text-primary animate-pulse" />
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground mb-3 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                    Trial Complete!
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
                     You've used your free poem generation. Sign up to create unlimited poems!
                   </p>
                   <div className="space-y-2">
-                    <Button onClick={() => (window.location.href = "/signup")} className="w-full" size="sm">
+                    <Button 
+                      onClick={() => (window.location.href = "/signup")} 
+                      className="w-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-r from-primary to-primary/90" 
+                      size="lg"
+                    >
+                      <Sparkles className="mr-2 h-4 w-4" />
                       Sign Up - It's Free!
                     </Button>
                     <Button
                       onClick={() => (window.location.href = "/login")}
                       variant="outline"
-                      className="w-full"
-                      size="sm"
+                      className="w-full hover:bg-muted/50 transition-all duration-300"
+                      size="lg"
                     >
                       Already have an account?
                     </Button>
@@ -388,12 +419,14 @@ export default function VersifyClient() {
                 </div>
               </div>
             ) : (
-              <CreativeControls
-                controls={controls}
-                setControls={setControls}
-                onGenerate={handleGenerate}
-                isLoading={isLoading}
-              />
+              <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
+                <CreativeControls
+                  controls={controls}
+                  setControls={setControls}
+                  onGenerate={handleGenerate}
+                  isLoading={isLoading}
+                />
+              </div>
             )}
           </div>
         )}
