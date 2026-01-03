@@ -1,29 +1,53 @@
-# Versify 🎨
+# Versify ✨
 
 **Transform images into beautiful poetry with AI**
 
 Versify is a modern web application that uses artificial intelligence to generate unique poems inspired by your images. Built with Next.js and powered by Google's Gemini AI, it offers a Discord-inspired interface for creating, customizing, and managing your poetic creations.
 
-![Versify Logo](public/icon.png)
+![Versify Interface](public/screenshoots/screenshoot-1-with-1-free-poem-if-not-signedin.png)
+
+## 🎯 Live Demo
+
+Experience Versify in action with our interactive demo:
+
+### 🆓 Free Trial Experience
+![Free Trial](public/screenshoots/screenshoot-1-with-1-free-poem-if-not-signedin.png)
+*Get started instantly with 1 free poem - no signup required!*
+
+### 📸 Gallery Upload Feature
+![Gallery Upload](public/screenshoots/screenshoot2-upload-using-galley.png)
+*Choose from our curated gallery or upload your own images*
+
+### 👤 Signed-in User Experience
+![User Dashboard](public/screenshoots/screenshoot3-user-signedin.png)
+*Full access to unlimited poem generation and personal library*
+
+### ⚡ AI Generation in Progress
+![Generating Poetry](public/screenshoots/screenshoot4-generating.png)
+*Watch as our AI analyzes your image and crafts beautiful poetry*
+
+### 📝 Generated Poem Result
+![Generated Poem](public/screenshoots/screenshot-5-poeam-generated.png)
+*Beautiful, personalized poems with editing and sharing capabilities*
 
 ## ✨ Features
 
-### 🖼️ Image-to-Poetry Generation
-- **Smart Image Analysis**: AI analyzes your images to detect objects, emotions, colors, and themes
-- **Multiple Poetry Styles**: Choose from Free Verse, Sonnet, Haiku, Limerick, and more
-- **Creative Controls**: Fine-tune tone, length, symbolism, and narrative style
-- **Instant Generation**: Get beautiful poems in seconds
-
-### 🎨 Discord-Inspired UI
-- **Modern Design**: Clean, intuitive interface inspired by Discord's design language
+### 🎨 **Beautiful Discord-Inspired Interface**
+- **Modern Design System**: Clean, intuitive interface with Discord's design language
+- **Glassmorphism Effects**: Beautiful backdrop blur and gradient overlays
+- **Smooth Animations**: Polished interactions with fade-in, slide, and shimmer effects
 - **Responsive Layout**: Seamless experience across desktop, tablet, and mobile devices
-- **Dark Theme**: Easy on the eyes with a sophisticated dark color scheme
-- **Smooth Interactions**: Polished user experience with thoughtful animations
+- **Dark Theme Optimized**: Sophisticated dark color scheme that's easy on the eyes
 
-### 📚 Personal Library
-- **Save & Organize**: Keep all your poems in a personal library
-- **Collections**: Organize poems into custom collections (Favorites, Drafts, etc.)
-- **Search & Filter**: Easily find poems by title, content, or collection
+### 🖼️ **Advanced Image-to-Poetry Generation**
+- **Smart AI Analysis**: Multi-model AI system analyzes images for objects, emotions, colors, and themes
+- **Multiple Poetry Styles**: Choose from Free Verse, Sonnet, Haiku, Limerick, Ballad, and more
+- **Creative Controls**: Fine-tune tone, length, symbolism, narrative style, and keyword emphasis
+- **Model Fallback System**: Automatic fallback across multiple AI models for reliability
+- **Instant Generation**: Get beautiful, unique poems in seconds
+
+### 📚 **Personal Poetry Library**
+- **Save & Organize**: Keep all your poe by title, content, or collection
 - **Export Options**: Share your poems or export them in various formats
 
 ### 🔐 User Management
