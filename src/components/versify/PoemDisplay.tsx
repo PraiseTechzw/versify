@@ -54,8 +54,6 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
   
   // Use the user prop passed from parent instead of calling useSupabaseUser again
   const user = propUser
-  
-  console.log("PoemDisplay: User state", { user: !!user, userId: user?.id })
 
   useEffect(() => {
     setTitle(poemResult.title)
@@ -134,9 +132,7 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
   }
 
   const handleSave = async () => {
-    console.log("PoemDisplay: handleSave called", { user: !!user, userId: user?.id, userEmail: user?.email })
     if (!user) {
-      console.log("PoemDisplay: Save failed - No user found in state")
       toast({ title: "Please log in to save poems.", variant: "destructive" })
       return
     }
@@ -150,7 +146,6 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
         imageHint: "",
       }
 
-      console.log("[v0] Attempting to save poem with user ID:", user.id)
       await addPoemToLibrary({ title, poem, image: imageToSave, controls })
       toast({ title: "Saved to your library!" })
     } catch (error) {
