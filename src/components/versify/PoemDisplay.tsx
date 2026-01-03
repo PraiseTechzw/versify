@@ -7,22 +7,27 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { generatePoemTitle } from "@/ai/flows/generate-poem-title"
 import { providePoemInspirationInsights } from "@/ai/flows/provide-poem-inspiration-insights"
-import { Clipboard, Download, Edit, Loader2, RefreshCw, Save, Share2, Sparkles, Wand2, MoreHorizontal } from "lucide-react"
+import {
+  Clipboard,
+  Download,
+  Edit,
+  Loader2,
+  RefreshCw,
+  Save,
+  Share2,
+  Sparkles,
+  Wand2,
+  MoreHorizontal,
+} from "lucide-react"
 import type { GeneratePoemFromImageOutput } from "@/ai/flows/generate-poem-from-image"
 import type { PoemInspirationInsightsOutput } from "@/ai/flows/provide-poem-inspiration-insights"
 import AiInsights from "./AiInsights"
 import PoemLine from "./PoemLine"
 import { useLibrary } from "@/context/LibraryContext"
-import { PlaceHolderImages } from "@/lib/placeholder-images"
 import type { CreativeControlsState } from "./VersifyClient"
 import { Badge } from "../ui/badge"
 import { useSupabaseUser } from "@/hooks/use-supabase-user"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 interface PoemDisplayProps {
   poemResult: GeneratePoemFromImageOutput
@@ -46,7 +51,7 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
   const [isSaving, setIsSaving] = useState(false)
   const { toast } = useToast()
   const { addPoemToLibrary } = useLibrary()
-  const { user } = useSupabaseUser()
+  const { user, userLoading } = useSupabaseUser()
 
   useEffect(() => {
     setTitle(poemResult.title)
@@ -126,21 +131,25 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
 
   const handleSave = async () => {
     if (!user) {
+      console.log("[v0] Save failed: No user found in state")
       toast({ title: "Please log in to save poems.", variant: "destructive" })
       return
     }
+
     setIsSaving(true)
     try {
-      const imagePlaceholder = PlaceHolderImages.find((p) => p.imageUrl === image) || {
+      const imageToSave = {
         id: `custom-${Date.now()}`,
         imageUrl: image,
         description: "Custom uploaded image",
         imageHint: "",
       }
-      await addPoemToLibrary({ title, poem, image: imagePlaceholder, controls })
+
+      console.log("[v0] Attempting to save poem with user ID:", user.id)
+      await addPoemToLibrary({ title, poem, image: imageToSave, controls })
       toast({ title: "Saved to your library!" })
     } catch (error) {
-      console.error(error)
+      console.error("[v0] Poem saving error:", error)
       toast({ title: "Failed to save poem", variant: "destructive" })
     } finally {
       setIsSaving(false)
@@ -185,7 +194,11 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={onRegenerate} disabled={isRegenerating}>
-              {isRegenerating ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : <RefreshCw className="mr-2 h-3 w-3" />}
+              {isRegenerating ? (
+                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+              ) : (
+                <RefreshCw className="mr-2 h-3 w-3" />
+              )}
               Regenerate
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setIsEditing(!isEditing)}>
@@ -274,7 +287,7 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
       </div>
 
       {/* Trial Completion Message for Non-Logged-In Users */}
-      {!user && (
+      {!userLoading && !user && (
         <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg p-4 border border-primary/20">
           <div className="flex items-start gap-3">
             <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
@@ -283,18 +296,15 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
             <div className="flex-1">
               <h4 className="font-semibold text-foreground mb-1">🎉 Trial Complete!</h4>
               <p className="text-sm text-muted-foreground mb-3">
-                You've used your free poem generation. Sign up to create unlimited poems, save to your library, and access advanced features!
+                You've used your free poem generation. Sign up to create unlimited poems, save to your library, and
+                access advanced features!
               </p>
               <div className="flex gap-2">
-                <Button 
-                  onClick={() => window.location.href = "/signup"}
-                  size="sm"
-                  className="text-xs"
-                >
+                <Button onClick={() => (window.location.href = "/signup")} size="sm" className="text-xs">
                   Sign Up Free
                 </Button>
-                <Button 
-                  onClick={() => window.location.href = "/login"}
+                <Button
+                  onClick={() => (window.location.href = "/login")}
                   variant="outline"
                   size="sm"
                   className="text-xs"

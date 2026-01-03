@@ -40,9 +40,9 @@ const IMAGE_CONSTRAINTS = {
 } as const
 
 const ACCEPTED_IMAGE_TYPES = {
-  'image/png': ['.png'],
-  'image/jpeg': ['.jpg', '.jpeg'],
-  'image/webp': ['.webp'],
+  "image/png": [".png"],
+  "image/jpeg": [".jpg", ".jpeg"],
+  "image/webp": [".webp"],
 } as const
 
 const SUCCESS_DISPLAY_DURATION = 2000
@@ -58,13 +58,19 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
   const [isCameraOpen, setIsCameraOpen] = useState(false)
   const [isGalleryOpen, setIsGalleryOpen] = useState(false)
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null)
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
-  
+
   const { toast } = useToast()
+
+  const resetFileInput = useCallback(() => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }, [])
 
   // Camera management with cleanup
   useEffect(() => {
@@ -83,16 +89,16 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
       }
 
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { 
-            facingMode: 'environment',
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: "environment",
             width: { ideal: IMAGE_CONSTRAINTS.MAX_WIDTH },
-            height: { ideal: IMAGE_CONSTRAINTS.MAX_HEIGHT }
-          } 
+            height: { ideal: IMAGE_CONSTRAINTS.MAX_HEIGHT },
+          },
         })
         streamRef.current = stream
         setHasCameraPermission(true)
-        
+
         if (videoRef.current) {
           videoRef.current.srcObject = stream
         }
@@ -123,29 +129,29 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
   const compressImage = useCallback(
     (file: File, maxSizeKB: number = IMAGE_CONSTRAINTS.MAX_SIZE_KB): Promise<string> => {
       return new Promise<string>((resolve, reject) => {
-        const canvas = document.createElement('canvas')
-        const ctx = canvas.getContext('2d')
-        
+        const canvas = document.createElement("canvas")
+        const ctx = canvas.getContext("2d")
+
         if (!ctx) {
-          reject(new Error('Canvas context not available'))
+          reject(new Error("Canvas context not available"))
           return
         }
-        
+
         const img = new window.Image()
         const objectUrl = URL.createObjectURL(file)
-        
+
         img.onerror = () => {
           URL.revokeObjectURL(objectUrl)
-          reject(new Error('Failed to load image'))
+          reject(new Error("Failed to load image"))
         }
-        
+
         img.onload = () => {
           URL.revokeObjectURL(objectUrl)
-          
+
           // Calculate dimensions maintaining aspect ratio
           let { width, height } = img
           const { MAX_WIDTH, MAX_HEIGHT } = IMAGE_CONSTRAINTS
-          
+
           if (width > height) {
             if (width > MAX_WIDTH) {
               height = Math.round((height * MAX_WIDTH) / width)
@@ -157,30 +163,30 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
               height = MAX_HEIGHT
             }
           }
-          
+
           canvas.width = width
           canvas.height = height
           ctx.drawImage(img, 0, 0, width, height)
-          
+
           // Progressive compression
           const { START, MIN, STEP } = IMAGE_CONSTRAINTS.COMPRESSION_QUALITY
           let quality = START
-          let dataUrl = canvas.toDataURL('image/jpeg', quality)
+          let dataUrl = canvas.toDataURL("image/jpeg", quality)
           const targetSize = maxSizeKB * 1024 * IMAGE_CONSTRAINTS.BASE64_OVERHEAD
-          
+
           while (dataUrl.length > targetSize && quality > MIN) {
             quality -= STEP
-            dataUrl = canvas.toDataURL('image/jpeg', quality)
-            setUploadProgress(Math.round((START - quality) / START * 100))
+            dataUrl = canvas.toDataURL("image/jpeg", quality)
+            setUploadProgress(Math.round(((START - quality) / START) * 100))
           }
-          
+
           resolve(dataUrl)
         }
-        
+
         img.src = objectUrl
       })
     },
-    []
+    [],
   )
 
   /**
@@ -195,6 +201,7 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
           title: "Invalid file type",
           description: "Please upload a valid image file (PNG, JPG, or WEBP).",
         })
+        resetFileInput() // Reset file input on error
         return
       }
 
@@ -204,7 +211,7 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
       try {
         const fileSizeKB = file.size / 1024
         let dataUrl: string
-        
+
         if (fileSizeKB > IMAGE_CONSTRAINTS.MAX_SIZE_KB) {
           toast({
             title: "Optimizing image...",
@@ -224,24 +231,25 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
               setUploadProgress(100)
               resolve(e.target?.result as string)
             }
-            reader.onerror = () => reject(new Error('Failed to read file'))
+            reader.onerror = () => reject(new Error("Failed to read file"))
             reader.readAsDataURL(file)
           })
         }
-        
+
+        console.log("[v0] Image processed successfully, dataUrl length:", dataUrl.length)
+
         onImageUpload(dataUrl)
         setUploadSuccess(true)
-        
+
         toast({
           title: "Upload successful!",
           description: "Your image is ready for poem generation.",
         })
-        
+
         setTimeout(() => {
           setUploadSuccess(false)
           setUploadProgress(0)
         }, SUCCESS_DISPLAY_DURATION)
-        
       } catch (error) {
         console.error("Image processing error:", error)
         toast({
@@ -251,9 +259,10 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
         })
       } finally {
         setIsProcessing(false)
+        resetFileInput() // Always reset file input after processing
       }
     },
-    [onImageUpload, toast, compressImage]
+    [onImageUpload, toast, compressImage, resetFileInput],
   )
 
   // Drag and drop handlers
@@ -279,13 +288,13 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
       e.preventDefault()
       e.stopPropagation()
       setIsDragging(false)
-      
+
       const files = e.dataTransfer.files
       if (files && files[0]) {
         handleFile(files[0])
       }
     },
-    [handleFile]
+    [handleFile],
   )
 
   const handleFileSelect = useCallback(
@@ -295,17 +304,16 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
         handleFile(files[0])
       }
     },
-    [handleFile]
+    [handleFile],
   )
 
   const handleClearImage = useCallback(() => {
+    console.log("[v0] Clearing image") // added log
     onImageUpload("")
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""
-    }
+    resetFileInput() // use unified reset
     setUploadSuccess(false)
     setUploadProgress(0)
-  }, [onImageUpload])
+  }, [onImageUpload, resetFileInput])
 
   const handlePlaceholderSelect = useCallback(
     (image: ImagePlaceholder) => {
@@ -318,19 +326,19 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
       })
       setTimeout(() => setUploadSuccess(false), SUCCESS_DISPLAY_DURATION)
     },
-    [onImageUpload, toast]
+    [onImageUpload, toast],
   )
 
   const handleCapture = useCallback(() => {
     if (!videoRef.current || !canvasRef.current) return
-    
+
     const context = canvasRef.current.getContext("2d")
     if (!context) return
 
     const video = videoRef.current
     let width = video.videoWidth
     let height = video.videoHeight
-    
+
     // Scale to max dimensions
     const { MAX_WIDTH, MAX_HEIGHT } = IMAGE_CONSTRAINTS
     if (width > height) {
@@ -344,29 +352,34 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
         height = MAX_HEIGHT
       }
     }
-    
+
     canvasRef.current.width = width
     canvasRef.current.height = height
     context.drawImage(video, 0, 0, width, height)
-    
+
     const dataUrl = canvasRef.current.toDataURL("image/jpeg", IMAGE_CONSTRAINTS.CAMERA_QUALITY)
+    console.log("[v0] Camera capture successful") // added log
     onImageUpload(dataUrl)
     setIsCameraOpen(false)
     setUploadSuccess(true)
-    
+
     toast({
       title: "Photo captured!",
       description: "Your image is ready for poem generation.",
     })
-    
+
     setTimeout(() => setUploadSuccess(false), SUCCESS_DISPLAY_DURATION)
   }, [onImageUpload, toast])
 
-  const triggerFileInput = useCallback(() => {
-    if (!currentImage) {
-      fileInputRef.current?.click()
-    }
-  }, [currentImage])
+  const triggerFileInput = useCallback(
+    (e: React.MouseEvent) => {
+      if (!currentImage && !isProcessing) {
+        e.stopPropagation()
+        fileInputRef.current?.click()
+      }
+    },
+    [currentImage, isProcessing],
+  )
 
   return (
     <div className="space-y-3">
@@ -401,7 +414,7 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
-        onClick={triggerFileInput}
+        onClick={triggerFileInput} // Passed event to trigger
         role="button"
         tabIndex={0}
         aria-label="Upload image area"
@@ -409,7 +422,7 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
         {currentImage ? (
           <div className="relative aspect-video w-full">
             <Image
-              src={currentImage}
+              src={currentImage || "/placeholder.svg"}
               alt="Uploaded preview"
               fill
               sizes="(max-width: 640px) 100vw, 400px"
@@ -432,10 +445,7 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center space-y-3 py-6 sm:py-8 px-4 cursor-pointer">
-            <div className={cn(
-              "transition-transform duration-200",
-              isDragging && "scale-110"
-            )}>
+            <div className={cn("transition-transform duration-200", isDragging && "scale-110")}>
               <div className="p-3 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
                 <UploadCloud className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
               </div>
@@ -445,17 +455,15 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
                 <span className="font-semibold text-primary">Click to upload</span>
                 <span className="text-muted-foreground"> or drag and drop</span>
               </p>
-              <p className="text-xs text-muted-foreground/70 text-center">
-                PNG, JPG, or WEBP • Max 800KB recommended
-              </p>
+              <p className="text-xs text-muted-foreground/70 text-center">PNG, JPG, or WEBP • Max 800KB recommended</p>
             </div>
           </div>
         )}
-        
+
         <input
           ref={fileInputRef}
           type="file"
-          accept={Object.keys(ACCEPTED_IMAGE_TYPES).join(',')}
+          accept={Object.keys(ACCEPTED_IMAGE_TYPES).join(",")}
           className="hidden"
           onChange={handleFileSelect}
           disabled={isProcessing}
@@ -467,9 +475,7 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
       {isProcessing && uploadProgress > 0 && (
         <div className="space-y-1 animate-in fade-in-0 slide-in-from-bottom-2">
           <Progress value={uploadProgress} className="h-1.5" />
-          <p className="text-xs text-muted-foreground text-center">
-            {uploadProgress}% complete
-          </p>
+          <p className="text-xs text-muted-foreground text-center">{uploadProgress}% complete</p>
         </div>
       )}
 
@@ -485,14 +491,14 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
           <ImageIcon className="mr-1.5 h-3.5 w-3.5" />
           Browse Files
         </Button>
-        
+
         <Dialog open={isCameraOpen} onOpenChange={setIsCameraOpen}>
           <DialogTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               disabled={isProcessing}
-              className="text-xs font-medium hover:bg-primary/10 transition-colors"
+              className="text-xs font-medium hover:bg-primary/10 transition-colors bg-transparent"
             >
               <Camera className="mr-1.5 h-3.5 w-3.5" />
               Take Photo
@@ -501,21 +507,19 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
           <DialogContent className="max-w-xl">
             <DialogHeader>
               <DialogTitle>Camera Capture</DialogTitle>
-              <DialogDescription>
-                Position your subject and click capture when ready.
-              </DialogDescription>
+              <DialogDescription>Position your subject and click capture when ready.</DialogDescription>
             </DialogHeader>
             <div className="relative aspect-video w-full bg-muted rounded-lg overflow-hidden">
-              <video 
-                ref={videoRef} 
-                className="w-full h-full object-cover" 
-                autoPlay 
-                muted 
+              <video
+                ref={videoRef}
+                className="w-full h-full object-cover"
+                autoPlay
+                muted
                 playsInline
                 aria-label="Camera preview"
               />
               <canvas ref={canvasRef} className="hidden" />
-              
+
               {hasCameraPermission === false && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-background/95">
                   <CameraOff className="w-12 h-12 text-destructive mb-4" />
@@ -531,13 +535,11 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
             </div>
             <div className="flex justify-end gap-2">
               <DialogClose asChild>
-                <Button variant="ghost" size="sm">Cancel</Button>
+                <Button variant="ghost" size="sm">
+                  Cancel
+                </Button>
               </DialogClose>
-              <Button 
-                size="sm" 
-                onClick={handleCapture} 
-                disabled={!hasCameraPermission}
-              >
+              <Button size="sm" onClick={handleCapture} disabled={!hasCameraPermission}>
                 <Camera className="mr-2 h-4 w-4" />
                 Capture Photo
               </Button>
@@ -549,11 +551,16 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
       {/* Gallery Button */}
       <Dialog open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
         <DialogTrigger asChild>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             disabled={isProcessing}
-            className="w-full text-xs font-medium hover:bg-primary/10 transition-colors"
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              setIsGalleryOpen(true)
+            }}
+            className="w-full text-xs font-medium hover:bg-primary/10 transition-colors bg-transparent"
           >
             <Plus className="mr-1.5 h-3.5 w-3.5" />
             Choose from Gallery
@@ -562,15 +569,13 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
         <DialogContent className="sm:max-w-[650px]">
           <DialogHeader>
             <DialogTitle>Image Gallery</DialogTitle>
-            <DialogDescription>
-              Select from our curated collection of inspirational images.
-            </DialogDescription>
+            <DialogDescription>Select from our curated collection of inspirational images.</DialogDescription>
           </DialogHeader>
-          <div 
+          <div
             className="grid grid-cols-3 gap-3 py-4 max-h-[60vh] overflow-y-auto pr-2"
             style={{
-              scrollbarWidth: 'thin',
-              scrollbarColor: 'hsl(var(--border)) transparent'
+              scrollbarWidth: "thin",
+              scrollbarColor: "hsl(var(--border)) transparent",
             }}
           >
             {PlaceHolderImages.map((image) => (
@@ -581,16 +586,14 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
                 aria-label={`Select ${image.description}`}
               >
                 <Image
-                  src={image.imageUrl}
+                  src={image.imageUrl || "/placeholder.svg"}
                   alt={image.description}
                   fill
                   sizes="200px"
                   className="object-cover group-hover:scale-105 transition-transform duration-200"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end">
-                  <p className="text-white text-xs p-3 leading-snug font-medium">
-                    {image.description}
-                  </p>
+                  <p className="text-white text-xs p-3 leading-snug font-medium">{image.description}</p>
                 </div>
               </button>
             ))}

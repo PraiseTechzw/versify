@@ -60,16 +60,15 @@ export default function VersifyClient() {
 
   useEffect(() => {
     setIsMounted(true)
-    // Check if trial has been used for non-logged-in users
-    if (!userLoading && !user) {
+    // This prevents the "signup notification" appearing for logged-in users.
+    if (!userLoading && user) {
+      setTrialUsed(false)
+      // We keep the flag in localStorage for guest sessions, but the 'user' check takes precedence in the UI.
+    } else if (!userLoading && !user) {
       const trialUsedStorage = localStorage.getItem("versify-trial-used")
       if (trialUsedStorage === "true") {
         setTrialUsed(true)
       }
-    } else if (!userLoading && user) {
-      // Reset trial for logged-in users
-      setTrialUsed(false)
-      localStorage.removeItem("versify-trial-used")
     }
   }, [user, userLoading])
 
@@ -156,25 +155,25 @@ export default function VersifyClient() {
       }
     } catch (error: any) {
       console.error("Poem generation error:", error)
-      
+
       let title = "Failed to generate poem"
       let description = "An unexpected error occurred. Please try again."
-      
+
       // Handle specific error types
-      if (error?.code === 429 || error?.status === 'RESOURCE_EXHAUSTED') {
+      if (error?.code === 429 || error?.status === "RESOURCE_EXHAUSTED") {
         title = "Service temporarily busy"
         description = "Our AI service is experiencing high demand. Please try again in a few moments."
-      } else if (error?.message?.includes('quota') || error?.message?.includes('rate limit')) {
+      } else if (error?.message?.includes("quota") || error?.message?.includes("rate limit")) {
         title = "Rate limit reached"
         description = "Please wait a moment before generating another poem."
-      } else if (error?.message?.includes('network') || error?.message?.includes('fetch')) {
+      } else if (error?.message?.includes("network") || error?.message?.includes("fetch")) {
         title = "Connection error"
         description = "Please check your internet connection and try again."
-      } else if (error?.message?.includes('All models exhausted')) {
+      } else if (error?.message?.includes("All models exhausted")) {
         title = "Service unavailable"
         description = "All AI models are currently busy. Please try again later."
       }
-      
+
       toast({
         title,
         description,
@@ -186,15 +185,18 @@ export default function VersifyClient() {
   }
 
   const handleImageUpload = (url: string) => {
-    console.log("VersifyClient: handleImageUpload called with:", url)
+    console.log(
+      "[v0] VersifyClient: handleImageUpload called with:",
+      url ? "Data URL (length: " + url.length + ")" : "empty string",
+    )
     setImageDataUrl(url)
     if (!url) {
       setPoemResult(null)
       setCurrentStep(1)
-      console.log("VersifyClient: Image cleared, step set to 1")
+      console.log("[v0] VersifyClient: Image cleared, step set to 1")
     } else {
       setCurrentStep(2)
-      console.log("VersifyClient: Image uploaded, step set to 2")
+      console.log("[v0] VersifyClient: Image uploaded, step set to 2")
     }
   }
 
@@ -219,11 +221,13 @@ export default function VersifyClient() {
 
         {/* Trial Status for Non-Logged-In Users */}
         {!userLoading && !user && (
-          <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${
-            trialUsed 
-              ? "bg-destructive/10 border-destructive/20" 
-              : "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800"
-          }`}>
+          <div
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${
+              trialUsed
+                ? "bg-destructive/10 border-destructive/20"
+                : "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800"
+            }`}
+          >
             {trialUsed ? (
               <>
                 <X className="h-4 w-4 text-destructive" />
@@ -261,8 +265,8 @@ export default function VersifyClient() {
               currentStep === 2
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : imageDataUrl
-                ? "bg-muted text-muted-foreground hover:bg-muted/80"
-                : "bg-muted/50 text-muted-foreground/50 cursor-not-allowed"
+                  ? "bg-muted text-muted-foreground hover:bg-muted/80"
+                  : "bg-muted/50 text-muted-foreground/50 cursor-not-allowed"
             }`}
           >
             <span className="flex items-center justify-center w-5 h-5 rounded-full bg-background/20 text-xs font-bold">
@@ -281,7 +285,10 @@ export default function VersifyClient() {
             <ImageUploader onImageUpload={handleImageUpload} currentImage={imageDataUrl} />
             {imageDataUrl && (
               <Button
-                onClick={() => setCurrentStep(2)}
+                onClick={() => {
+                  console.log("[v0] Moving to step 2 manually")
+                  setCurrentStep(2)
+                }}
                 className="w-full mt-4"
                 size="lg"
               >
@@ -297,66 +304,65 @@ export default function VersifyClient() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setCurrentStep(1)}
+                onClick={() => {
+                  console.log("[v0] Moving back to step 1")
+                  setCurrentStep(1)
+                }}
                 className="h-8 px-2"
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
                 Back
               </Button>
             </div>
-            
+
             {imageDataUrl && (
-              <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-border shadow-sm mb-4">
+              <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-border shadow-sm mb-4 group">
                 <Image
-                  src={imageDataUrl}
+                  src={imageDataUrl || "/placeholder.svg"}
                   alt="Selected image"
                   className="object-cover"
                   fill
                   sizes="400px"
                 />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Button variant="secondary" size="sm" onClick={() => setCurrentStep(1)}>
+                    Change Image
+                  </Button>
+                </div>
               </div>
             )}
 
-            <div className="flex-1 overflow-y-auto overflow-x-hidden pr-2" style={{
-              scrollbarWidth: 'thin',
-              scrollbarColor: 'hsl(var(--border)) transparent'
-            }}>
-              {!userLoading && !user && trialUsed ? (
-                <div className="text-center py-8 space-y-4">
-                  <div className="bg-gradient-to-br from-primary/20 to-primary/5 p-6 rounded-xl">
-                    <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">Trial Complete!</h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      You've used your free poem generation. Sign up to create unlimited poems!
-                    </p>
-                    <div className="space-y-2">
-                      <Button 
-                        onClick={() => window.location.href = "/signup"}
-                        className="w-full"
-                        size="sm"
-                      >
-                        Sign Up - It's Free!
-                      </Button>
-                      <Button 
-                        onClick={() => window.location.href = "/login"}
-                        variant="outline"
-                        className="w-full"
-                        size="sm"
-                      >
-                        Already have an account?
-                      </Button>
-                    </div>
+            {!userLoading && !user && trialUsed ? (
+              <div className="text-center py-8 space-y-4">
+                <div className="bg-gradient-to-br from-primary/20 to-primary/5 p-6 rounded-xl">
+                  <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-foreground mb-2">Trial Complete!</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    You've used your free poem generation. Sign up to create unlimited poems!
+                  </p>
+                  <div className="space-y-2">
+                    <Button onClick={() => (window.location.href = "/signup")} className="w-full" size="sm">
+                      Sign Up - It's Free!
+                    </Button>
+                    <Button
+                      onClick={() => (window.location.href = "/login")}
+                      variant="outline"
+                      className="w-full"
+                      size="sm"
+                    >
+                      Already have an account?
+                    </Button>
                   </div>
                 </div>
-              ) : (
-                <CreativeControls
-                  controls={controls}
-                  setControls={setControls}
-                  onGenerate={handleGenerate}
-                  isLoading={isLoading}
-                />
-              )}
-            </div>
+              </div>
+            ) : (
+              <CreativeControls
+                controls={controls}
+                setControls={setControls}
+                onGenerate={handleGenerate}
+                isLoading={isLoading}
+              />
+            )}
           </div>
         )}
       </div>
@@ -414,24 +420,26 @@ export default function VersifyClient() {
             <span className="font-semibold text-foreground">poem-generator</span>
             <div className="h-5 w-px bg-border mx-1 hidden sm:block" />
             <span className="text-sm text-muted-foreground hidden sm:block">
-              {!userLoading && !user && trialUsed 
-                ? "Trial complete - Sign up for more!" 
-                : !userLoading && !user 
-                ? "Free trial: 1 poem remaining"
-                : "Create beautiful poems from images"
-              }
+              {!userLoading && !user && trialUsed
+                ? "Trial complete - Sign up for more!"
+                : !userLoading && !user
+                  ? "Free trial: 1 poem remaining"
+                  : "Create beautiful poems from images"}
             </span>
           </div>
 
           {/* Header controls */}
           <Header />
         </div>
-        
+
         {/* Chat-like Content Area */}
-        <div className="flex-1 overflow-y-auto bg-background/50" style={{
-          scrollbarWidth: 'thin',
-          scrollbarColor: 'hsl(var(--border)) transparent'
-        }}>
+        <div
+          className="flex-1 overflow-y-auto bg-background/50"
+          style={{
+            scrollbarWidth: "thin",
+            scrollbarColor: "hsl(var(--border)) transparent",
+          }}
+        >
           {/* Trial Banner for Non-Logged-In Users */}
           {!userLoading && !user && trialUsed && (
             <div className="bg-gradient-to-r from-primary/10 to-accent/10 border-b border-border">
@@ -445,15 +453,11 @@ export default function VersifyClient() {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button 
-                      onClick={() => window.location.href = "/signup"}
-                      size="sm"
-                      className="text-xs"
-                    >
+                    <Button onClick={() => (window.location.href = "/signup")} size="sm" className="text-xs">
                       Sign Up Free
                     </Button>
-                    <Button 
-                      onClick={() => window.location.href = "/login"}
+                    <Button
+                      onClick={() => (window.location.href = "/login")}
                       variant="outline"
                       size="sm"
                       className="text-xs"
@@ -488,7 +492,7 @@ export default function VersifyClient() {
                   <div className="discord-message max-w-lg w-full">
                     <div className="relative w-full aspect-video mb-6 rounded-xl overflow-hidden shadow-lg border border-border">
                       <Image
-                        src={imageDataUrl}
+                        src={imageDataUrl || "/placeholder.svg"}
                         alt="Ready for poem"
                         className="object-cover"
                         fill
@@ -496,9 +500,7 @@ export default function VersifyClient() {
                       />
                     </div>
                     <h2 className="text-2xl font-semibold text-foreground mb-3">Image Ready</h2>
-                    <p className="text-base mb-6">
-                      Customize your poem settings in the sidebar and generate!
-                    </p>
+                    <p className="text-base mb-6">Customize your poem settings in the sidebar and generate!</p>
                     <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
                       <SheetTrigger asChild>
                         <Button size="lg" className="lg:hidden">
@@ -515,7 +517,8 @@ export default function VersifyClient() {
                     </div>
                     <h2 className="text-3xl font-bold text-foreground mb-4">Welcome to Versify</h2>
                     <p className="text-base leading-relaxed mb-8 text-muted-foreground">
-                      Upload an image to get started. Our AI will create beautiful poetry inspired by your visual content.
+                      Upload an image to get started. Our AI will create beautiful poetry inspired by your visual
+                      content.
                     </p>
                     {!userLoading && !user && (
                       <div className="mb-6 p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
