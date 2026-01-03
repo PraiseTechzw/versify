@@ -47,20 +47,25 @@ Experience Versify in action with our interactive demo:
 - **Instant Generation**: Get beautiful, unique poems in seconds
 
 ### 📚 **Personal Poetry Library**
-- **Save & Organize**: Keep all your poe by title, content, or collection
-- **Export Options**: Share your poems or export them in various formats
+- **Save & Organize**: Keep all your poems in a secure personal library
+- **Smart Collections**: Organize poems into custom collections (Favorites, Drafts, etc.)
+- **Advanced Search**: Find poems by title, content, or collection with full-text search
+- **Export & Share**: Share your poems or export them in various formats
+- **Edit & Regenerate**: Modify existing poems with AI assistance
 
-### 🔐 User Management
-- **Secure Authentication**: Sign up with email/password or Google OAuth
-- **Profile Management**: Customize your display name and preferences
-- **Privacy Controls**: Your poems are private and secure
-- **Notification Settings**: Control daily inspiration and event notifications
-
-### 🛠️ Advanced Features
-- **Real-time Editing**: Edit and regenerate poems with AI assistance
+### 🔐 **Secure User Management**
+- **Multiple Auth Options**: Sign up with email/password or Google OAuth
+- **Profile Customization**: Personalize your display name and preferences
+- **Privacy First**: Your poems are private and secure with Row Level Security
+- **Notification Controls**: Manage daily inspiration and event notifications
 - **Session Persistence**: Your work is automatically saved as you create
-- **Mobile Optimized**: Full functionality on mobile devices with touch-friendly controls
-- **Accessibility**: Built with accessibility best practices in mind
+
+### 🚀 **Premium User Experience**
+- **Free Trial**: Generate 1 poem without signup to try the service
+- **Real-time Editing**: Edit poems line-by-line with AI suggestions
+- **Mobile Optimized**: Full functionality on mobile with touch-friendly controls
+- **Accessibility**: Built with WCAG guidelines and screen reader support
+- **Performance**: Optimized with caching, image compression, and lazy loading
 
 ## 🚀 Getting Started
 
