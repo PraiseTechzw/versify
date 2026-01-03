@@ -26,7 +26,6 @@ import PoemLine from "./PoemLine"
 import { useLibrary } from "@/context/LibraryContext"
 import type { CreativeControlsState } from "./VersifyClient"
 import { Badge } from "../ui/badge"
-import { useSupabaseUser } from "@/hooks/use-supabase-user"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 interface PoemDisplayProps {
@@ -35,12 +34,13 @@ interface PoemDisplayProps {
   onRegenerate: () => void
   isRegenerating: boolean
   controls: CreativeControlsState
+  user: any | null
 }
 
 /**
  * Discord-style poem display component with message-like layout.
  */
-export default function PoemDisplay({ poemResult, image, onRegenerate, isRegenerating, controls }: PoemDisplayProps) {
+export default function PoemDisplay({ poemResult, image, onRegenerate, isRegenerating, controls, user: propUser }: PoemDisplayProps) {
   const [title, setTitle] = useState(poemResult.title)
   const [poem, setPoem] = useState(poemResult.poem)
   const [isEditing, setIsEditing] = useState(false)
@@ -51,7 +51,11 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
   const [isSaving, setIsSaving] = useState(false)
   const { toast } = useToast()
   const { addPoemToLibrary } = useLibrary()
-  const { user, userLoading } = useSupabaseUser()
+  
+  // Use the user prop passed from parent instead of calling useSupabaseUser again
+  const user = propUser
+  
+  console.log("PoemDisplay: User state", { user: !!user, userId: user?.id })
 
   useEffect(() => {
     setTitle(poemResult.title)
@@ -130,8 +134,9 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
   }
 
   const handleSave = async () => {
+    console.log("PoemDisplay: handleSave called", { user: !!user, userId: user?.id, userEmail: user?.email })
     if (!user) {
-      console.log("[v0] Save failed: No user found in state")
+      console.log("PoemDisplay: Save failed - No user found in state")
       toast({ title: "Please log in to save poems.", variant: "destructive" })
       return
     }
@@ -287,7 +292,7 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
       </div>
 
       {/* Trial Completion Message for Non-Logged-In Users */}
-      {!userLoading && !user && (
+      {!user && (
         <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg p-4 border border-primary/20">
           <div className="flex items-start gap-3">
             <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">

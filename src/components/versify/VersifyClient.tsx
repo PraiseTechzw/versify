@@ -277,8 +277,11 @@ export default function VersifyClient() {
         </div>
       </div>
 
-      {/* Sidebar Content - No scrollbar needed now */}
-      <div className="flex-1 p-6 overflow-hidden">
+      {/* Sidebar Content - Scrollable */}
+      <div className="flex-1 p-6 overflow-y-auto" style={{
+        scrollbarWidth: 'thin',
+        scrollbarColor: 'hsl(var(--border)) transparent'
+      }}>
         {currentStep === 1 ? (
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">Upload Image</h3>
@@ -477,6 +480,7 @@ export default function VersifyClient() {
               </div>
             ) : poemResult && imageDataUrl ? (
               <div className="discord-message">
+                {console.log("VersifyClient: Rendering PoemDisplay with user:", { user: !!user, userId: user?.id })}
                 <PoemDisplay
                   key={poemResult.poem}
                   poemResult={poemResult}
@@ -484,6 +488,7 @@ export default function VersifyClient() {
                   onRegenerate={handleGenerate}
                   isRegenerating={isLoading}
                   controls={controls}
+                  user={user}
                 />
               </div>
             ) : (

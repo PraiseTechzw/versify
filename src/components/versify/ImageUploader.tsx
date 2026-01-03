@@ -373,12 +373,12 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
 
   const triggerFileInput = useCallback(
     (e: React.MouseEvent) => {
-      if (!currentImage && !isProcessing) {
+      if (!isProcessing) {
         e.stopPropagation()
         fileInputRef.current?.click()
       }
     },
-    [currentImage, isProcessing],
+    [isProcessing],
   )
 
   return (
@@ -429,11 +429,13 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
               className="rounded-lg object-cover"
               priority
             />
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" />
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+              <p className="text-white text-sm font-medium">Click to change image</p>
+            </div>
             <Button
               variant="destructive"
               size="icon"
-              className="absolute top-2 right-2 h-7 w-7 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute top-2 right-2 h-7 w-7 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
               onClick={(e) => {
                 e.stopPropagation()
                 handleClearImage()
@@ -555,11 +557,6 @@ const ImageUploader = memo(function ImageUploader({ onImageUpload, currentImage 
             variant="outline"
             size="sm"
             disabled={isProcessing}
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              setIsGalleryOpen(true)
-            }}
             className="w-full text-xs font-medium hover:bg-primary/10 transition-colors bg-transparent"
           >
             <Plus className="mr-1.5 h-3.5 w-3.5" />
