@@ -1,7 +1,29 @@
 {
-  "name": "nextn",
-  "version": "0.1.0",
+  "name": "versify",
+  "version": "1.0.0",
   "private": true,
+  "description": "Transform images into beautiful poetry with AI - A modern web application powered by Google Gemini AI",
+  "author": {
+    "name": "Praise Masunga",
+    "email": "praisetechzw@gmail.com",
+    "url": "https://github.com/PraiseTechzw"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PraiseTechzw/versify.git"
+  },
+  "homepage": "https://versify-ai.vercel.app",
+  "keywords": [
+    "ai",
+    "poetry",
+    "image-to-text",
+    "nextjs",
+    "gemini-ai",
+    "supabase",
+    "typescript",
+    "tailwindcss"
+  ],
+  "license": "MIT",
   "scripts": {
     "build": "NODE_ENV=production next build",
     "dev": "next dev --turbopack -p 9002",
