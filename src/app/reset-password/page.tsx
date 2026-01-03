@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -14,7 +14,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "@/lib/utils"
 import { VersifyLogo } from "@/components/ui/versify-logo"
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -99,6 +99,146 @@ export default function ResetPasswordPage() {
   }
 
   return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold text-foreground mb-2">Reset your password</h2>
+        <p className="text-muted-foreground">
+          Enter your new password below. Make sure it's strong and secure.
+        </p>
+      </div>
+
+      <form onSubmit={handleResetPassword} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="password" className="text-sm font-medium text-foreground">
+            New Password <span className="text-destructive">*</span>
+          </Label>
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter your new password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="discord-input pr-10"
+              disabled={isLoading}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+              onClick={() => setShowPassword(!showPassword)}
+              disabled={isLoading}
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </Button>
+          </div>
+          
+          {/* Password Requirements */}
+          {password && (
+            <div className="space-y-1 mt-2">
+              {passwordRequirements.map((req, index) => (
+                <div key={index} className="flex items-center gap-2 text-xs">
+                  {req.test(password) ? (
+                    <Check className="h-3 w-3 text-green-500" />
+                  ) : (
+                    <X className="h-3 w-3 text-muted-foreground" />
+                  )}
+                  <span className={cn(
+                    req.test(password) ? "text-green-500" : "text-muted-foreground"
+                  )}>
+                    {req.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="confirmPassword" className="text-sm font-medium text-foreground">
+            Confirm New Password <span className="text-destructive">*</span>
+          </Label>
+          <div className="relative">
+            <Input
+              id="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Confirm your new password"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className={cn(
+                "discord-input pr-10",
+                confirmPassword && !passwordsMatch && "border-destructive"
+              )}
+              disabled={isLoading}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              disabled={isLoading}
+            >
+              {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </Button>
+          </div>
+          {confirmPassword && !passwordsMatch && (
+            <p className="text-xs text-destructive">Passwords don't match</p>
+          )}
+        </div>
+
+        <Button 
+          type="submit" 
+          className="w-full discord-button h-11" 
+          disabled={isLoading || !isPasswordValid || !passwordsMatch}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Updating password...
+            </>
+          ) : (
+            <>
+              <Lock className="mr-2 h-4 w-4" />
+              Update Password
+            </>
+          )}
+        </Button>
+      </form>
+
+      <div className="text-center">
+        <p className="text-sm text-muted-foreground">
+          Remember your password?{" "}
+          <Link href="/login" className="text-primary hover:underline font-medium">
+            Sign in
+          </Link>
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <div className="h-8 bg-muted rounded animate-pulse mb-2" />
+        <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
+      </div>
+      <div className="space-y-4">
+        <div className="h-10 bg-muted rounded animate-pulse" />
+        <div className="h-10 bg-muted rounded animate-pulse" />
+        <div className="h-11 bg-muted rounded animate-pulse" />
+      </div>
+    </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
     <div className="min-h-screen bg-background flex">
       {/* Left Panel - Auth Form */}
       <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 xl:px-12 max-w-md mx-auto lg:max-w-none lg:mx-0">
@@ -122,126 +262,10 @@ export default function ResetPasswordPage() {
           </div>
         </div>
 
-        {/* Form */}
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-3xl font-bold text-foreground mb-2">Reset your password</h2>
-            <p className="text-muted-foreground">
-              Enter your new password below. Make sure it's strong and secure.
-            </p>
-          </div>
-
-          <form onSubmit={handleResetPassword} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-foreground">
-                New Password <span className="text-destructive">*</span>
-              </Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your new password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="discord-input pr-10"
-                  disabled={isLoading}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                  onClick={() => setShowPassword(!showPassword)}
-                  disabled={isLoading}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-              </div>
-              
-              {/* Password Requirements */}
-              {password && (
-                <div className="space-y-1 mt-2">
-                  {passwordRequirements.map((req, index) => (
-                    <div key={index} className="flex items-center gap-2 text-xs">
-                      {req.test(password) ? (
-                        <Check className="h-3 w-3 text-green-500" />
-                      ) : (
-                        <X className="h-3 w-3 text-muted-foreground" />
-                      )}
-                      <span className={cn(
-                        req.test(password) ? "text-green-500" : "text-muted-foreground"
-                      )}>
-                        {req.label}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-sm font-medium text-foreground">
-                Confirm New Password <span className="text-destructive">*</span>
-              </Label>
-              <div className="relative">
-                <Input
-                  id="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Confirm your new password"
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className={cn(
-                    "discord-input pr-10",
-                    confirmPassword && !passwordsMatch && "border-destructive"
-                  )}
-                  disabled={isLoading}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  disabled={isLoading}
-                >
-                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-              </div>
-              {confirmPassword && !passwordsMatch && (
-                <p className="text-xs text-destructive">Passwords don't match</p>
-              )}
-            </div>
-
-            <Button 
-              type="submit" 
-              className="w-full discord-button h-11" 
-              disabled={isLoading || !isPasswordValid || !passwordsMatch}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Updating password...
-                </>
-              ) : (
-                <>
-                  <Lock className="mr-2 h-4 w-4" />
-                  Update Password
-                </>
-              )}
-            </Button>
-          </form>
-
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">
-              Remember your password?{" "}
-              <Link href="/login" className="text-primary hover:underline font-medium">
-                Sign in
-              </Link>
-            </p>
-          </div>
-        </div>
+        {/* Form with Suspense */}
+        <Suspense fallback={<LoadingFallback />}>
+          <ResetPasswordForm />
+        </Suspense>
       </div>
 
       {/* Right Panel - Hero Image */}
