@@ -390,6 +390,11 @@ export default function VersifyClient() {
     )
   }
 
+  // Debug logging for user state when rendering PoemDisplay
+  if (poemResult && imageDataUrl) {
+    console.log("VersifyClient: Rendering PoemDisplay with user:", { user: !!user, userId: user?.id })
+  }
+
   return (
     <div className="flex h-screen bg-background">
       {/* Desktop Sidebar - Hidden on mobile, larger on desktop */}
@@ -480,7 +485,6 @@ export default function VersifyClient() {
               </div>
             ) : poemResult && imageDataUrl ? (
               <div className="discord-message">
-                {console.log("VersifyClient: Rendering PoemDisplay with user:", { user: !!user, userId: user?.id })}
                 <PoemDisplay
                   key={poemResult.poem}
                   poemResult={poemResult}
