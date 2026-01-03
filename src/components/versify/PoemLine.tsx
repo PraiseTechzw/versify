@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Loader2, Wand2 } from "lucide-react";
-import { rewritePoemLineWithAISuggestions } from '@/ai/flows/rewrite-poem-line-with-ai-suggestions';
+import { rewritePoemLineAction } from '@/lib/actions/poem-actions';
 import { useToast } from '@/hooks/use-toast';
 
 /**
@@ -38,11 +38,8 @@ export default function PoemLine({ lineNumber, lineText, fullPoem, onRewrite }: 
         if (suggestions.length > 0) return;
         setIsLoading(true);
         try {
-            const result = await rewritePoemLineWithAISuggestions({
-                poem: fullPoem,
-                lineNumber: lineNumber + 1,
-            });
-            setSuggestions(result.suggestions);
+            const suggestions = await rewritePoemLineAction(lineText, fullPoem)
+            setSuggestions(suggestions)
         } catch (error) {
             toast({ title: "Failed to get suggestions", variant: "destructive" });
         } finally {

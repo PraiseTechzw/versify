@@ -5,8 +5,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { generatePoemTitle } from "@/ai/flows/generate-poem-title"
-import { providePoemInspirationInsights } from "@/ai/flows/provide-poem-inspiration-insights"
+import { generatePoemTitleAction, providePoemInspirationInsightsAction } from "@/lib/actions/poem-actions"
 import {
   Clipboard,
   Download,
@@ -65,7 +64,7 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
   const handleGenerateTitle = async () => {
     setIsTitleLoading(true)
     try {
-      const { title: newTitle } = await generatePoemTitle({ poem })
+      const newTitle = await generatePoemTitleAction(poem)
       setTitle(newTitle)
       toast({ title: "New title generated!" })
     } catch (error) {
@@ -115,7 +114,7 @@ export default function PoemDisplay({ poemResult, image, onRegenerate, isRegener
     if (!insights && !showInsights) {
       setIsInsightsLoading(true)
       try {
-        const insightsResult = await providePoemInspirationInsights({ photoDataUri: image, poem })
+        const insightsResult = await providePoemInspirationInsightsAction(poem)
         setInsights(insightsResult)
       } catch (error) {
         toast({ title: "Could not get AI insights.", variant: "destructive" })
