@@ -4,12 +4,12 @@
   "description": "Transform images into beautiful poetry with AI",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#2c2f36",
-  "theme_color": "#5865f2",
+  "background_color": "#0f172a",
+  "theme_color": "#3b82f6",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/logo.svg",
+      "src": "/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"

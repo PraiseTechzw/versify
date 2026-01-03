@@ -1,0 +1,45 @@
+<svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="50" cy="50" r="46" fill="#3b82f6" opacity="0.1"/>
+  
+  <!-- Main Quill/Feather -->
+  <g transform="translate(35, 25)">
+    <!-- Quill Shaft -->
+    <path d="M15 5 L8 45 L10 47 L17 7 Z" fill="#3b82f6" opacity="0.9"/>
+    
+    <!-- Feather Vanes - Left Side -->
+    <path d="M15 10 Q10 12 8 15 L10 16 Q12 13 15 12 Z" fill="#3b82f6" opacity="0.3"/>
+    <path d="M15 18 Q9 20 7 24 L9 25 Q11 21 15 20 Z" fill="#3b82f6" opacity="0.25"/>
+    <path d="M14 26 Q8 28 6 33 L8 34 Q10 29 14 28 Z" fill="#3b82f6" opacity="0.2"/>
+    
+    <!-- Feather Vanes - Right Side -->
+    <path d="M17 12 Q22 14 24 17 L22 18 Q20 15 17 14 Z" fill="#3b82f6" opacity="0.3"/>
+    <path d="M17 20 Q23 22 25 26 L23 27 Q21 23 17 22 Z" fill="#3b82f6" opacity="0.25"/>
+    <path d="M16 28 Q22 30 24 35 L22 36 Q20 31 16 30 Z" fill="#3b82f6" opacity="0.2"/>
+    
+    <!-- Quill Tip -->
+    <path d="M8 45 L10 47 L9 50 Z" fill="#1e40af"/>
+    
+    <!-- Feather Top -->
+    <ellipse cx="16" cy="7" rx="6" ry="4" fill="#3b82f6" opacity="0.4"/>
+  </g>
+  
+  <!-- Poetry Lines -->
+  <g opacity="0.6">
+    <path d="M20 65 Q30 63 40 65 T60 65" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <path d="M20 72 Q28 70 38 72 T55 72" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <path d="M20 79 Q26 77 35 79 T50 79" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  </g>
+  
+  <!-- AI Sparkle -->
+  <g transform="translate(70, 30)" opacity="0.9">
+    <path d="M0 -6 L1 -1 L6 0 L1 1 L0 6 L-1 1 L-6 0 L-1 -1 Z" fill="#1e40af"/>
+  </g>
+  
+  <!-- Image Icon -->
+  <g transform="translate(62, 62)" opacity="0.5">
+    <rect width="14" height="12" rx="2" stroke="#3b82f6" stroke-width="1.5" fill="none"/>
+    <circle cx="5" cy="4" r="1.5" fill="#3b82f6"/>
+    <path d="M2 10 L5 7 L8 9 L12 5" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+</svg>
