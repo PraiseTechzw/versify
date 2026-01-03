@@ -129,44 +129,91 @@ Experience Versify in action with our interactive demo:
 
 ## 🏗️ Tech Stack
 
-### Frontend
-- **Next.js 15** - React framework with App Router
-- **TypeScript** - Type-safe development
-- **Tailwind CSS** - Utility-first CSS framework
-- **Radix UI** - Accessible component primitives
-- **Lucide React** - Beautiful icons
+### **Frontend Architecture**
+- **Next.js 15** - React framework with App Router and Server Actions
+- **TypeScript** - Full type safety across the entire application
+- **Tailwind CSS** - Utility-first CSS with custom design system
+- **Radix UI** - Accessible, unstyled component primitives
+- **Lucide React** - Beautiful, consistent icon library
+- **Framer Motion** - Smooth animations and transitions
 
-### Backend & Services
-- **Supabase** - Database, authentication, and real-time features
-- **Google Gemini AI** - Advanced AI for poem generation
-- **Genkit** - AI framework for structured generation
-- **Upstash Redis** - Optional caching layer
+### **Backend & AI Services**
+- **Supabase** - PostgreSQL database with real-time subscriptions
+- **Supabase Auth** - Secure authentication with multiple providers
+- **Google Gemini AI** - Advanced multimodal AI for image analysis and text generation
+- **Genkit Framework** - Structured AI flow management with model fallbacks
+- **Server Actions** - Type-safe server-side functions for AI operations
 
-### Development Tools
-- **ESLint** - Code linting
-- **TypeScript** - Static type checking
-- **Turbopack** - Fast development builds
+### **Performance & Optimization**
+- **Upstash Redis** - Intelligent caching for improved performance
+- **Image Optimization** - Automatic compression and format conversion
+- **Lazy Loading** - Optimized loading for better user experience
+- **Edge Functions** - Fast, globally distributed API responses
+
+### **Development & Deployment**
+- **TypeScript** - Static type checking and IntelliSense
+- **ESLint** - Code quality and consistency enforcement
+- **Turbopack** - Ultra-fast development builds
+- **Vercel** - Seamless deployment with automatic previews
 
 ## 📁 Project Structure
 
 ```
 versify/
 ├── src/
-│   ├── ai/                 # AI generation logic
-│   │   └── flows/          # Genkit AI flows
-│   ├── app/                # Next.js App Router pages
-│   │   ├── auth/           # Authentication pages
-│   │   ├── library/        # Poem library
-│   │   └── settings/       # User settings
-│   ├── components/         # React components
-│   │   ├── ui/             # Reusable UI components
-│   │   └── versify/        # App-specific components
-│   ├── context/            # React context providers
-│   ├── hooks/              # Custom React hooks
-│   └── lib/                # Utility functions and configs
-├── public/                 # Static assets
-├── scripts/                # Database migration scripts
-└── docs/                   # Documentation
+│   ├── ai/                     # AI generation system
+│   │   ├── flows/              # Genkit AI flows for different operations
+│   │   │   ├── generate-poem-from-image.ts
+│   │   │   ├── generate-poem-title.ts
+│   │   │   ├── provide-poem-inspiration-insights.ts
+│   │   │   └── rewrite-poem-line-with-ai-suggestions.ts
+│   │   ├── genkit.ts           # AI configuration and model fallbacks
+│   │   └── dev.ts              # Development server configuration
+│   ├── app/                    # Next.js App Router pages
+│   │   ├── api/                # API routes and webhooks
+│   │   ├── auth/               # Authentication pages and callbacks
+│   │   ├── library/            # Personal poem library interface
+│   │   ├── settings/           # User settings and preferences
+│   │   ├── login/              # Login page
+│   │   ├── signup/             # Registration page
+│   │   ├── terms/              # Terms of service
+│   │   ├── privacy/            # Privacy policy
+│   │   └── layout.tsx          # Root layout with providers
+│   ├── components/             # React components
+│   │   ├── ui/                 # Reusable UI components (Radix-based)
+│   │   │   ├── button.tsx
+│   │   │   ├── dialog.tsx
+│   │   │   ├── sheet.tsx
+│   │   │   └── versify-logo.tsx
+│   │   └── versify/            # App-specific components
+│   │       ├── VersifyClient.tsx    # Main application interface
+│   │       ├── PhotoUploader.tsx    # Image upload component
+│   │       ├── PoemDisplay.tsx      # Poem rendering and editing
+│   │       ├── CreativeControls.tsx # AI generation controls
+│   │       └── Header.tsx           # Navigation header
+│   ├── context/                # React context providers
+│   │   └── LibraryContext.tsx  # Poem library state management
+│   ├── hooks/                  # Custom React hooks
+│   │   ├── use-supabase-user.ts     # User authentication hook
+│   │   ├── use-supabase-collection.ts # Database collection hook
+│   │   └── use-toast.ts             # Toast notification hook
+│   ├── lib/                    # Utility functions and configurations
+│   │   ├── actions/            # Server actions for AI operations
+│   │   ├── supabase/           # Database operations and auth
+│   │   ├── upstash/            # Redis caching utilities
+│   │   └── utils.ts            # Common utility functions
+├── public/                     # Static assets
+│   ├── screenshoots/           # Application screenshots
+│   ├── favicon.svg             # Custom Versify favicon
+│   ├── icon.png                # App icon
+│   └── manifest.json           # PWA manifest
+├── scripts/                    # Database and deployment scripts
+│   └── 01_migrate_firebase_to_supabase.sql
+├── docs/                       # Documentation
+│   ├── backend.json            # API documentation
+│   └── blueprint.md            # Architecture overview
+└── styles/                     # Global styles and themes
+    └── globals.css             # Tailwind CSS and custom styles
 ```
 
 ## 🔧 Configuration
